@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes App</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Notes App</h1>
+        <div class="note-form">
+            <label>Title:</label>
+            <input type="text" id="title" placeholder="Title" required>
+            <label>Content:</label>
+            <textarea id="content" placeholder="Write your note here..."></textarea>
+            <button class="btn" onclick="addNote()">Add Note</button>
+        </div>
+        <div class="notes-list" id="notes-list"></div>
+        <div clas="footer-section">
+        <footer class="footer">
+            <div class="footer-content">
+               <p>&copy; 2024 NoteApp. All rights reserved.</p>
+                <nav class="footer-nav">
+                  <a href="#about">About</a>
+                  <a href="#privacy">Privacy Policy</a>
+                  <a href="#terms">Terms of Service</a>
+                  <a href="#contact">Contact</a>
+                </nav>
+            <div class="footer-social">
+              <a href="https://twitter.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i>X</a>
+              <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i>Facebook</a>
+              <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i>Instagram</a>
+            </div>
+            <div class="designer"> 
+                Created by @jakereagan
+            </div>
+            </div>
+        </footer>
+    </div>
+
+    </div>
+
+    <script>
+        async function fetchNotes() {
+            const response = await fetch('/api/notes');
+            const notes = await response.json();
+            const notesList = document.getElementById('notes-list');
+            notesList.innerHTML = '';
+            notes.forEach(note => {
+                const noteItem = document.createElement('div');
+                noteItem.classList.add('note-item');
+                noteItem.innerHTML = `
+                    <h3>${note.title}</h3>
+                    <p>${note.content}</p>
+                    <small>Created at: ${new Date(note.created_at).toLocaleString()}</small>
+                    <button onclick="deleteNote(${note.id})">Delete</button>
+                `;
+                notesList.appendChild(noteItem);
+            });
+        }
+
+        async function addNote() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const response = await fetch('/api/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            });
+            if (response.ok) {
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+                fetchNotes();
+            }
+        }
+
+        async function deleteNote(id) {
+            const response = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                fetchNotes();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchNotes);
+    </script>
+</body>
+</html>
