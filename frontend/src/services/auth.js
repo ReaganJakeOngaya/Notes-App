@@ -1,9 +1,17 @@
-import React from 'react'
+// Import everything from api.js
+import { 
+  API_URL,
+  loginUser as apiLogin,
+  registerUser as apiRegister,
+  logoutUser as apiLogout,
+  getCurrentUser as apiGetCurrentUser
+} from './api';
 
-const auth = () => {
-  return (
-    <div>auth</div>
-  )
-}
+// Export the auth functions directly
+export const loginUser = apiLogin;
+export const registerUser = apiRegister;
+export const logoutUser = apiLogout;
+export const getCurrentUser = apiGetCurrentUser;
 
-export default authfce
+// Alternatively, you could just delete auth.js entirely and import directly from api.js
+// since we've consolidated all the auth functions in api.js
