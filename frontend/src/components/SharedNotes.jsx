@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { NotesContext } from '../context/NotesContext';
 import NoteCard from './NoteCard';
 import { formatDate } from '../utils/dateUtils';
+import '../css/SharedNotes.css';
 
 const SharedNotes = () => {
   const { sharedNotes } = useContext(NotesContext);

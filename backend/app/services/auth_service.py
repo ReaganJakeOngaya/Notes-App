@@ -6,24 +6,29 @@ from flask_login import login_user
 
 class AuthService:
     def register_user(self, data):
-        if not data or not data.get('email') or not data.get('password'):
-            return jsonify({'error': 'Email and password are required'}), 400
-        
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({'error': 'Email already registered'}), 400
-        
-        user = User(
-            email=data['email'],
-            username=data.get('username', data['email'].split('@')[0]),
-            password_hash=generate_password_hash(data['password']),
-            provider='email'
-        )
-        
-        db.session.add(user)
-        db.session.commit()
-        
-        login_user(user)
-        return jsonify({'message': 'User registered successfully'}), 201
+        try:
+            if User.query.filter_by(email=data['email']).first():
+                return {'error': 'Email already registered'}, 400
+    
+            user = User(
+                username=data['username'],
+                email=data['email'],
+                provider='email'
+            )
+            user.set_password(data['password'])
+    
+            db.session.add(user)
+            db.session.commit()
+    
+            login_user(user)
+            return {
+                'message': 'User registered successfully',
+                'user': user.to_dict(),
+                'token': user.get_auth_token()
+            }, 201
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 500
 
     def login_user(self, data):
         user = User.query.filter_by(email=data['email']).first()

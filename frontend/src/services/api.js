@@ -1,5 +1,6 @@
+// api.js
 // Define the API base URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem('token');
@@ -12,84 +13,54 @@ const fetchWithAuth = async (url, options = {}) => {
     headers['Authorization'] = `Bearer ${token}`;
   }
   
-  const response = await fetch(`${API_URL}${url}`, {
-    ...options,
-    headers,
-    credentials: 'include'
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
+  try {
+    const response = await fetch(`${API_URL}${url}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+      mode: 'cors' 
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || errorData.error || 'Request failed');
+    }
+    
+    if (response.status === 204) {
+      return null;
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
   }
-  
-  return response.json();
-};
-
-// Export all API functions
-export {
-  API_URL,
 };
 
 // Authentication API
 export const loginUser = async (credentials) => {
-  const response = await fetch(`${API_URL}/auth/login`, {
+  return fetchWithAuth('/auth/login', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(credentials),
-    credentials: 'include'
+    body: JSON.stringify(credentials)
   });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Login failed');
-  }
-  
-  const data = await response.json();
-  localStorage.setItem('token', data.token);
-  return data.user;
 };
 
 export const registerUser = async (credentials) => {
-  const response = await fetch(`${API_URL}/auth/register`, {
+  return fetchWithAuth('/auth/register', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(credentials),
-    credentials: 'include'
+    body: JSON.stringify(credentials)
   });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Registration failed');
-  }
-  
-  const data = await response.json();
-  localStorage.setItem('token', data.token);
-  return data.user;
 };
 
 export const logoutUser = async () => {
-  await fetch(`${API_URL}/auth/logout`, {
-    method: 'POST',
-    credentials: 'include'
+  await fetchWithAuth('/auth/logout', {
+    method: 'POST'
   });
   localStorage.removeItem('token');
 };
 
 export const getCurrentUser = async () => {
-  const response = await fetch(`${API_URL}/users/profile`, {
-    credentials: 'include'
-  });
-  
-  if (!response.ok) {
-    throw new Error('Not authenticated');
-  }
-  
-  return response.json();
+  return fetchWithAuth('/users/profile');
 };
 
 // Notes API

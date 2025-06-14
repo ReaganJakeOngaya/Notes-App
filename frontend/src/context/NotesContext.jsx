@@ -1,4 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+// NotesContext.jsx
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { getNotes, createNote, updateNote, deleteNote, shareNote, getSharedNotes } from '../services/api';
 import { AuthContext } from './AuthContext';
 
@@ -11,82 +12,114 @@ export const NotesProvider = ({ children }) => {
   const [currentView, setCurrentView] = useState('grid');
   const [currentSort, setCurrentSort] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { user } = useContext(AuthContext);
 
-  const fetchNotes = async () => {
+  const fetchNotes = useCallback(async () => {
     if (!user) return;
+    setIsLoading(true);
+    setError(null);
     try {
       const data = await getNotes(currentFilter, searchQuery);
       setNotes(data);
-    } catch (error) {
-      console.error('Error fetching notes:', error);
+    } catch (err) {
+      console.error('Error fetching notes:', err);
+      setError(err.message || 'Failed to load notes');
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [user, currentFilter, searchQuery]);
 
-  const fetchSharedNotes = async () => {
+  const fetchSharedNotes = useCallback(async () => {
     if (!user) return;
+    setIsLoading(true);
+    setError(null);
     try {
       const data = await getSharedNotes();
       setSharedNotes(data);
-    } catch (error) {
-      console.error('Error fetching shared notes:', error);
+    } catch (err) {
+      console.error('Error fetching shared notes:', err);
+      setError(err.message || 'Failed to load shared notes');
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchNotes();
     fetchSharedNotes();
-  }, [user, currentFilter, searchQuery]);
+  }, [fetchNotes, fetchSharedNotes]);
 
   const addNote = async (noteData) => {
+    setIsLoading(true);
+    setError(null);
     try {
       const newNote = await createNote(noteData);
-      setNotes([newNote, ...notes]);
+      setNotes(prevNotes => [newNote, ...prevNotes]);
       return newNote;
-    } catch (error) {
-      console.error('Error creating note:', error);
-      throw error;
+    } catch (err) {
+      console.error('Error creating note:', err);
+      setError(err.message || 'Failed to create note');
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const editNote = async (id, noteData) => {
+    setIsLoading(true);
+    setError(null);
     try {
       const updatedNote = await updateNote(id, noteData);
-      setNotes(notes.map(note => note.id === id ? updatedNote : note));
+      setNotes(prevNotes => prevNotes.map(note => 
+        note.id === id ? updatedNote : note
+      ));
       return updatedNote;
-    } catch (error) {
-      console.error('Error updating note:', error);
-      throw error;
+    } catch (err) {
+      console.error('Error updating note:', err);
+      setError(err.message || 'Failed to update note');
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const removeNote = async (id) => {
+    setIsLoading(true);
+    setError(null);
     try {
       await deleteNote(id);
-      setNotes(notes.filter(note => note.id !== id));
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      throw error;
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+    } catch (err) {
+      console.error('Error deleting note:', err);
+      setError(err.message || 'Failed to delete note');
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const toggleFavorite = async (id, isFavorite) => {
     try {
-      const updatedNote = await updateNote(id, { favorite: !isFavorite });
-      setNotes(notes.map(note => note.id === id ? updatedNote : note));
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      throw error;
+      await editNote(id, { favorite: !isFavorite });
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      throw err;
     }
   };
 
   const shareNoteWithUser = async (noteId, email, permission) => {
+    setIsLoading(true);
+    setError(null);
     try {
       await shareNote(noteId, email, permission);
-      // Optionally refresh notes or show a success message
-    } catch (error) {
-      console.error('Error sharing note:', error);
-      throw error;
+    } catch (err) {
+      console.error('Error sharing note:', err);
+      setError(err.message || 'Failed to share note');
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,6 +131,8 @@ export const NotesProvider = ({ children }) => {
       currentView,
       currentSort,
       searchQuery,
+      isLoading,
+      error,
       setCurrentFilter,
       setCurrentView,
       setCurrentSort,

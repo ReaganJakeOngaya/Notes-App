@@ -3,6 +3,7 @@ import Sidebar from '../components/Sidebar';
 import NoteCard from '../components/NoteCard';
 import NoteEditor from '../components/NoteEditor';
 import { NotesContext } from '../context/NotesContext';
+import '../css/Home.css';
 
 const Home = () => {
   const { 

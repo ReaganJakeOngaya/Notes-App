@@ -1,5 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { NotesContext } from '../context/NotesContext';
+import '../css/NoteEditor.css';
 
 const NoteEditor = ({ note, onSave, onCancel }) => {
   const [title, setTitle] = useState(note?.title || '');
@@ -7,22 +8,61 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
   const [category, setCategory] = useState(note?.category || 'personal');
   const [tags, setTags] = useState(note?.tags || []);
   const [tagInput, setTagInput] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null);
   const { addNote, editNote } = useContext(NotesContext);
+  const editorRef = useRef(null);
 
-  const handleSave = () => {
-    const noteData = { title, content, category, tags };
-    if (note) {
-      editNote(note.id, noteData).then(onSave);
-    } else {
-      addNote(noteData).then(onSave);
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.innerHTML = content;
+    }
+  }, [content]);
+
+  const handleEditorChange = () => {
+    if (editorRef.current) {
+      setContent(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!title.trim()) {
+      setError('Title is required');
+      return;
+    }
+
+    setIsSaving(true);
+    setError(null);
+
+    const noteData = { 
+      title: title.trim(),
+      content,
+      category,
+      tags,
+      favorite: note?.favorite || false
+    };
+
+    try {
+      if (note) {
+        await editNote(note.id, noteData);
+      } else {
+        await addNote(noteData);
+      }
+      onSave();
+    } catch (err) {
+      console.error('Error saving note:', err);
+      setError(err.message || 'Failed to save note');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleTagKeyDown = (e) => {
     if (['Enter', ','].includes(e.key)) {
       e.preventDefault();
-      if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()]);
+      const newTag = tagInput.trim();
+      if (newTag && !tags.includes(newTag)) {
+        setTags([...tags, newTag]);
         setTagInput('');
       }
     }
@@ -42,6 +82,7 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
           </button>
         </div>
         <div className="modal-body">
+          {error && <div className="error-message">{error}</div>}
           <div className="form-group">
             <input 
               type="text" 
@@ -49,6 +90,7 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Note title..." 
               maxLength="100"
+              required
             />
           </div>
           <div className="form-group">
@@ -81,10 +123,10 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
               </button>
             </div>
             <div 
+              ref={editorRef}
               className="editor" 
               contentEditable="true"
-              dangerouslySetInnerHTML={{ __html: content }}
-              onInput={(e) => setContent(e.target.innerHTML)}
+              onInput={handleEditorChange}
               placeholder="Start writing your note..."
             ></div>
           </div>
@@ -103,16 +145,30 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
-                placeholder="Add tags..."
+                placeholder="Add tags (press Enter to add)"
               />
             </div>
           </div>
         </div>
         <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSave}>
-            <i className="fas fa-save"></i>
-            {note ? 'Update Note' : 'Save Note'}
+          <button className="btn btn-secondary" onClick={onCancel} disabled={isSaving}>
+            Cancel
+          </button>
+          <button 
+            className="btn btn-primary" 
+            onClick={handleSave}
+            disabled={isSaving || !title.trim()}
+          >
+            {isSaving ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i> Saving...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-save"></i>
+                {note ? 'Update Note' : 'Save Note'}
+              </>
+            )}
           </button>
         </div>
       </div>

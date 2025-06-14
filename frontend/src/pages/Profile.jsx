@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import UserProfile from '../components/UserProfile';
+import '../css/Profile.css';
 
 const Profile = () => {
   const { user, updateProfile, logout } = useContext(AuthContext);

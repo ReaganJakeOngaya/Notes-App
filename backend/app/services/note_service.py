@@ -1,3 +1,4 @@
+from flask import jsonify 
 from app.models import Note, SharedNote, User
 from app import db
 import json
@@ -35,19 +36,23 @@ class NoteService:
     def create_note(self, user_id, data):
         if not data or not data.get('title'):
             return jsonify({'error': 'Title is required'}), 400
+    
+        try:
+            note = Note(
+                title=data['title'],
+                content=data.get('content', ''),
+                category=data.get('category', 'personal'),
+                tags=json.dumps(data.get('tags', [])),
+                favorite=data.get('favorite', False),
+                user_id=user_id
+            )
         
-        note = Note(
-            title=data['title'],
-            content=data.get('content', ''),
-            category=data.get('category', 'personal'),
-            tags=json.dumps(data.get('tags', [])),
-            favorite=data.get('favorite', False),
-            user_id=user_id
-        )
-        
-        db.session.add(note)
-        db.session.commit()
-        return jsonify(self._note_to_dict(note)), 201
+            db.session.add(note)
+            db.session.commit()
+            return jsonify(self._note_to_dict(note)), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
     
     def update_note(self, user_id, note_id, data):
         note = Note.query.filter_by(id=note_id, user_id=user_id).first()
