@@ -1,6 +1,5 @@
 /* This is already included in NoteEditor.css since they share the same modal structure */
 
-
 .profile-form .form-group {
     margin-bottom: 1.5rem;
 }
@@ -9,6 +8,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
+    color: var(--text-primary);
 }
 
 .profile-form input {
@@ -18,6 +18,8 @@
     border-radius: 0.5rem;
     background: var(--bg-secondary);
     color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .profile-form input:focus {
@@ -31,7 +33,150 @@
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    margin: 0 auto 1rem;
+    margin: 1rem auto 0;
     display: block;
     border: 2px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Rich Text Editor Styles */
+.editor-toolbar {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background: var(--bg-tertiary, #f8f9fa);
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+    flex-wrap: wrap;
+}
+
+.editor-toolbar button {
+    padding: 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    transition: all 0.2s;
+}
+
+.editor-toolbar button:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.editor-toolbar button:active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.editor-toolbar .divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+    margin: 4px 0.25rem;
+}
+
+.editor {
+    min-height: 120px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 0.5rem 0.5rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.editor:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
+}
+
+.editor[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: var(--text-tertiary, #9ca3af);
+    font-style: italic;
+}
+
+.bio-editor {
+    font-family: inherit;
+}
+
+.bio-editor p {
+    margin: 0 0 0.5rem 0;
+}
+
+.bio-editor ul, .bio-editor ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.bio-editor li {
+    margin: 0.25rem 0;
+}
+
+.bio-editor a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* Error message styles */
+.error-message {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    border: 1px solid #fecaca;
+}
+
+/* Loading states */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.fa-spinner.fa-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .editor-toolbar {
+        gap: 0.125rem;
+        padding: 0.375rem;
+    }
+    
+    .editor-toolbar button {
+        min-width: 28px;
+        height: 28px;
+        padding: 0.375rem;
+    }
+    
+    .editor {
+        min-height: 100px;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .avatar-preview {
+        width: 60px;
+        height: 60px;
+    }
 }

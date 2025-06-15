@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
+import SharedNotes from './components/SharedNotes';
 // import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles.css'
 
@@ -19,6 +20,7 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="/" element={<Home />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/shared" element={<SharedNotes />} />
             </Route>
           </Routes>
         </NotesProvider>

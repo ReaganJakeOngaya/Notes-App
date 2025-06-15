@@ -95,10 +95,10 @@ const Login = () => {
           
           <div className="social-auth">
             <button className="btn btn-google">
-              <i className="fab fa-google"></i> Continue with Google
+              <i className="fa-brands fa-google"></i> Continue with Google
             </button>
             <button className="btn btn-apple">
-              <i className="fab fa-apple"></i> Continue with Apple
+              <i className="fa-brands fa-apple"></i> Continue with Apple
             </button>
           </div>
         </div>

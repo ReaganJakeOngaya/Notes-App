@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser, registerUser, logoutUser, getCurrentUser } from '../services/auth';
+import { updateProfile as apiUpdateProfile } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -41,9 +42,21 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
+  const updateProfile = async (profileData) => {
+    try {
+      const updatedUser = await apiUpdateProfile(profileData);
+      setUser(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);

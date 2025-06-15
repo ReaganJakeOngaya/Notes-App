@@ -53,16 +53,16 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle }) => {
             onClick={() => onFavoriteToggle(note.id, note.favorite)}
             title={note.favorite ? 'Remove from favorites' : 'Add to favorites'}
           >
-            <i className="fas fa-star"></i>
+            <i className="fa-solid fa-star"></i>
           </button>
           <button className="action-btn" onClick={() => onEdit(note)} title="Edit">
-            <i className="fas fa-edit"></i>
+            <i className="fa-solid fa-pen-to-square"></i>
           </button>
           <button className="action-btn" onClick={() => setShowShareModal(true)} title="Share">
-            <i className="fas fa-share-alt"></i>
+            <i className="fa-solid fa-share-nodes"></i>
           </button>
           <button className="action-btn danger" onClick={() => removeNote(note.id)} title="Delete">
-            <i className="fas fa-trash"></i>
+            <i className="fa-solid fa-trash-can"></i>
           </button>
         </div>
       </div>
@@ -97,7 +97,7 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle }) => {
                 setShareError(null);
                 setShareSuccess(false);
               }}>
-                <i className="fas fa-times"></i>
+                <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
             <div className="modal-body">
@@ -147,7 +147,7 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle }) => {
               >
                 {isSharing ? (
                   <>
-                    <i className="fas fa-spinner fa-spin"></i> Sharing...
+                    <i className="fa-solid fa-spinner fa-spin"></i> Sharing...
                   </>
                 ) : (
                   'Share Note'

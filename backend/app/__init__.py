@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from datetime import timedelta
 from config import Config
+import os
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -15,11 +16,22 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     
     app.config.update(
-        SESSION_COOKIE_SECURE=False,  # For development
+        SESSION_COOKIE_SECURE=False, 
         SESSION_COOKIE_SAMESITE='Lax',
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
     )    
+    
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
+    
+    # In your app initialization code
+    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Create if it doesn't exist
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    
+    print(f"Upload folder: {UPLOAD_FOLDER}")
+    print(f"Exists: {os.path.exists(UPLOAD_FOLDER)}")
+    print(f"Writable: {os.access(UPLOAD_FOLDER, os.W_OK)}")
     
     # Initialize extensions
     db.init_app(app)
@@ -35,11 +47,12 @@ def create_app(config_class=Config):
     
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173"],
+            "origins": ["http://localhost:5173"], 
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
+            "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+            "expose_headers": ["Content-Type"],
             "supports_credentials": True,
-            "expose_headers": ["Content-Type"]
+            "max_age": 3600
         },
         r"/auth/*": {
             "origins": ["http://localhost:5173"],

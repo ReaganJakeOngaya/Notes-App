@@ -108,9 +108,30 @@ export const getProfile = () => {
   return fetchWithAuth('/users/profile');
 };
 
+
 export const updateProfile = (profileData) => {
-  return fetchWithAuth('/users/profile', {
+  const token = localStorage.getItem('token');
+  
+  
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  // Remove Content-Type header for FormData
+  if (!(profileData instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  return fetch(`${API_URL}/users/profile`, {
     method: 'PUT',
-    body: JSON.stringify(profileData)
+    body: profileData,
+    headers,
+    credentials: 'include'
+  }).then(async (response) => {
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.message || 'Request failed');
+    }
+    return response.json();
   });
 };

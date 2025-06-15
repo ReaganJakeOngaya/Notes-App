@@ -19,6 +19,8 @@ const Home = () => {
   
   const [showEditor, setShowEditor] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  
+
 
   const handleEditNote = (note) => {
     setEditingNote(note);
@@ -55,13 +57,13 @@ const Home = () => {
                 className={`view-btn ${currentView === 'grid' ? 'active' : ''}`}
                 onClick={() => setCurrentView('grid')}
               >
-                <i className="fas fa-th"></i>
+                <i className="fa-solid fa-grid"></i>
               </button>
               <button 
                 className={`view-btn ${currentView === 'list' ? 'active' : ''}`}
                 onClick={() => setCurrentView('list')}
               >
-                <i className="fas fa-list"></i>
+                <i className="fa-solid fa-list"></i>
               </button>
             </div>
             <div className="sort-dropdown">
@@ -82,12 +84,12 @@ const Home = () => {
           {notes.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">
-                <i className="fas fa-sticky-note"></i>
+                <i className="fa-solid fa-note-sticky"></i>
               </div>
               <h3>No notes yet</h3>
               <p>Create your first note to get started</p>
               <button className="btn btn-primary" onClick={handleNewNote}>
-                <i className="fas fa-plus"></i>
+                <i className="fa-solid fa-plus"></i>
                 Create Note
               </button>
             </div>

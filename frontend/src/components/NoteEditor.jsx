@@ -78,7 +78,7 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
         <div className="modal-header">
           <h2>{note ? 'Edit Note' : 'Create New Note'}</h2>
           <button className="close-btn" onClick={onCancel}>
-            <i className="fas fa-times"></i>
+            <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
         <div className="modal-body">
@@ -106,20 +106,20 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
           <div className="form-group">
             <div className="editor-toolbar">
               <button type="button" title="Bold">
-                <i className="fas fa-bold"></i>
+                <i className="fa-solid fa-bold"></i>
               </button>
               <button type="button" title="Italic">
-                <i className="fas fa-italic"></i>
+                <i className="fa-solid fa-italic"></i>
               </button>
               <button type="button" title="Underline">
-                <i className="fas fa-underline"></i>
+                <i className="fa-solid fa-underline"></i>
               </button>
               <div className="divider"></div>
               <button type="button" title="Bullet List">
-                <i className="fas fa-list-ul"></i>
+                <i className="fa-solid fa-list-ul"></i>
               </button>
               <button type="button" title="Numbered List">
-                <i className="fas fa-list-ol"></i>
+                <i className="fa-solid fa-list-ol"></i>
               </button>
             </div>
             <div 
@@ -161,11 +161,11 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
           >
             {isSaving ? (
               <>
-                <i className="fas fa-spinner fa-spin"></i> Saving...
+                <i className="fa-solid fa-spinner fa-spin"></i> Saving...
               </>
             ) : (
               <>
-                <i className="fas fa-save"></i>
+                <i className="fa-solid fa-floppy-disk"></i>
                 {note ? 'Update Note' : 'Save Note'}
               </>
             )}
