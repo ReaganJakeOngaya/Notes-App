@@ -61,7 +61,7 @@ const Login = () => {
     try {
       window.open(`${API_URL}/auth/apple`, '_blank');
     
-    // Listen for auth success message
+    
       window.addEventListener('message', (event) => {
         if (event.origin === window.location.origin && event.data.authSuccess) {
           // Handle successful login
@@ -129,7 +129,7 @@ const Login = () => {
             {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
           </button>
           
-          {/* <div className="social-auth">
+          <div className="social-auth">
             <button 
               className="btn btn-google"
               type='button'
@@ -144,7 +144,7 @@ const Login = () => {
               >
               <i className="fa-brands fa-apple"></i> Continue with Apple
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
