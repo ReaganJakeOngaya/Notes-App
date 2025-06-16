@@ -10,7 +10,7 @@ services:
     # healthCheckPath: /health
     # healthCheckIntervalSeconds: 10
     env: python
-    pythonVersion: "3.13.4"
+    pythonVersion: "3.11.9"
     envVars:
       - key: FLASK_ENV
         value: production
