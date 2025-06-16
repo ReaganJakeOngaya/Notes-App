@@ -39,7 +39,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     
     # Import models here to avoid circular imports
-    from app.models import User
+    from backend.app.models import User
     
     @login_manager.user_loader
     def load_user(user_id):
