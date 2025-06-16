@@ -39,21 +39,15 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     
     # Import models here to avoid circular imports
-    from backend.app.models import User
+    from app.models import User
     
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
     
-    # Move the before_first_request inside create_app
-    @app.before_first_request
-    def create_tables():
-        with app.app_context():
-            db.create_all()
-    
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173", "https://noteflow-backend-2fro.onrender.com"], 
+            "origins": ["http://localhost:5173"], 
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type"],
@@ -61,13 +55,13 @@ def create_app(config_class=Config):
             "max_age": 3600
         },
         r"/auth/*": {
-            "origins": ["http://localhost:5173", "https://noteflow-backend-2fro.onrender.com"],
+            "origins": ["http://localhost:5173"],
             "methods": ["POST", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True
         }
     })    
-    
+   
     # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.notes import notes_bp
@@ -79,6 +73,7 @@ def create_app(config_class=Config):
     
     return app
 
+# Ensure the app is created only when this module is run directly
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
