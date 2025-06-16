@@ -6,7 +6,7 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
       flask db upgrade
-    startCommand: "gunicorn backend app:app"
+    startCommand: "gunicorn backend.app:app"
     # healthCheckPath: /health
     # healthCheckIntervalSeconds: 10
     env: python
