@@ -3,17 +3,17 @@ services:
     name: noteflow-backend
     runtime: python
     buildCommand: |
-      pip install gunicorn
+      pip install --upgrade pip
       pip install -r requirements.txt
       flask db upgrade
-    startCommand: "gunicorn app:app"
+    startCommand: "gunicorn --worker-class gevent --workers 2 backend.app:create_app"
     env: python
-    pythonVersion: "3.9.13" # or your preferred version
+    pythonVersion: "3.9.13"
     envVars:
       - key: FLASK_ENV
         value: production
       - key: FLASK_APP
-        value: app
+        value: backend.app
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
@@ -21,12 +21,18 @@ services:
           name: noteflow-db
           property: connectionString
       - key: GOOGLE_CLIENT_ID
-        sync: false # Set this to your actual value in Render dashboard
+        sync: false
       - key: GOOGLE_CLIENT_SECRET
-        sync: false # Set this to your actual value in Render dashboard
+        sync: false
       - key: OAUTH_REDIRECT_URI
         value: https://noteflow-backend.onrender.com/auth/google/callback
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+      - key: UPLOAD_FOLDER
+        value: /opt/render/project/src/backend/static/uploads
 
 databases:
   - name: noteflow-db
-    plan: free # or "starter" for production
+    plan: free
+    databaseName: noteflow
+    user: noteflow

@@ -45,9 +45,15 @@ def create_app(config_class=Config):
     def load_user(user_id):
         return User.query.get(int(user_id))
     
+    # Move the before_first_request inside create_app
+    @app.before_first_request
+    def create_tables():
+        with app.app_context():
+            db.create_all()
+    
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173"], 
+            "origins": ["http://localhost:5173", "https://your-render-app-url.onrender.com"], 
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type"],
@@ -55,13 +61,13 @@ def create_app(config_class=Config):
             "max_age": 3600
         },
         r"/auth/*": {
-            "origins": ["http://localhost:5173"],
+            "origins": ["http://localhost:5173", "https://your-render-app-url.onrender.com"],
             "methods": ["POST", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True
         }
     })    
-   
+    
     # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.notes import notes_bp
@@ -72,3 +78,7 @@ def create_app(config_class=Config):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     
     return app
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True)
