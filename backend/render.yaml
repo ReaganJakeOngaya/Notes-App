@@ -2,10 +2,10 @@ services:
   - type: web
     name: noteflow-backend
     runtime: python
-    buildCommand: "pip install -r requirements.txt && flask db upgrade"
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn && flask db upgrade"
     startCommand: "gunicorn app:app"
     env: python
-    pythonVersion: "3.9.13" # or your preferred version
+    pythonVersion: "3.13.4" # or your preferred version
     envVars:
       - key: SECRET_KEY
         generateValue: true
