@@ -37,6 +37,42 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+    // Open Google OAuth in a new window or redirect
+      window.open(`${API_URL}/auth/google`, '_blank');
+    
+    // Alternatively, you can use a popup approach with window.open
+    // and postMessage to communicate back to your app
+    
+    // Listen for auth success message
+      window.addEventListener('message', (event) => {
+        if (event.origin === window.location.origin && event.data.authSuccess) {
+        // Handle successful login
+          navigate('/');
+        }
+      });
+    } catch (err) {
+      setError(err.message || 'Google login failed');
+    }
+  }; 
+
+  const handleAppleLogin = async () => {
+    try {
+      window.open(`${API_URL}/auth/apple`, '_blank');
+    
+    // Listen for auth success message
+      window.addEventListener('message', (event) => {
+        if (event.origin === window.location.origin && event.data.authSuccess) {
+          // Handle successful login
+          navigate('/');
+        }
+      });
+    } catch (err) {
+      setError(err.message || 'Apple login failed');
+    }
+  };
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -93,14 +129,22 @@ const Login = () => {
             {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
           </button>
           
-          <div className="social-auth">
-            <button className="btn btn-google">
+          {/* <div className="social-auth">
+            <button 
+              className="btn btn-google"
+              type='button'
+              onClick={handleGoogleLogin}
+            >
               <i className="fa-brands fa-google"></i> Continue with Google
             </button>
-            <button className="btn btn-apple">
+            <button 
+              className="btn btn-apple"
+              type='button'
+              onClick={handleAppleLogin}
+              >
               <i className="fa-brands fa-apple"></i> Continue with Apple
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
