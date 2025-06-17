@@ -16,8 +16,8 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     
     app.config.update(
-        SESSION_COOKIE_SECURE=False, 
-        SESSION_COOKIE_SAMESITE='Lax',
+        SESSION_COOKIE_SECURE=True, 
+        SESSION_COOKIE_SAMESITE='None',
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
     )    
