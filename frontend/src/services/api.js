@@ -39,73 +39,73 @@ const fetchWithAuth = async (url, options = {}) => {
 
 // Authentication API
 export const loginUser = async (credentials) => {
-  return fetchWithAuth('/api/auth/login', {
+  return fetchWithAuth('/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials)
   });
 };
 
 export const registerUser = async (credentials) => {
-  return fetchWithAuth('/api/auth/register', {
+  return fetchWithAuth('/auth/register', {
     method: 'POST',
     body: JSON.stringify(credentials)
   });
 };
 
 export const logoutUser = async () => {
-  await fetchWithAuth('/api/auth/logout', {
+  await fetchWithAuth('/auth/logout', {
     method: 'POST'
   });
   localStorage.removeItem('token');
 };
 
 export const getCurrentUser = async () => {
-  return fetchWithAuth('/api/users/profile');
+  return fetchWithAuth('/users/profile');
 };
 
 // Notes API
 export const getNotes = (category = 'all', search = '') => {
-  return fetchWithAuth(`/api/notes?category=${category}&search=${search}`);
+  return fetchWithAuth(`/notes?category=${category}&search=${search}`);
 };
 
 export const getNote = (id) => {
-  return fetchWithAuth(`/api/notes/${id}`);
+  return fetchWithAuth(`/notes/${id}`);
 };
 
 export const createNote = (noteData) => {
-  return fetchWithAuth('/api/notes', {
+  return fetchWithAuth('/notes', {
     method: 'POST',
     body: JSON.stringify(noteData)
   });
 };
 
 export const updateNote = (id, noteData) => {
-  return fetchWithAuth(`/api/notes/${id}`, {
+  return fetchWithAuth(`/notes/${id}`, {
     method: 'PUT',
     body: JSON.stringify(noteData)
   });
 };
 
 export const deleteNote = (id) => {
-  return fetchWithAuth(`/api/notes/${id}`, {
+  return fetchWithAuth(`/notes/${id}`, {
     method: 'DELETE'
   });
 };
 
 export const shareNote = (noteId, email, permission) => {
-  return fetchWithAuth(`/api/notes/${noteId}/share`, {
+  return fetchWithAuth(`/notes/${noteId}/share`, {
     method: 'POST',
     body: JSON.stringify({ email, permission })
   });
 };
 
 export const getSharedNotes = () => {
-  return fetchWithAuth('/api/notes/shared');
+  return fetchWithAuth('/notes/shared');
 };
 
 // User API
 export const getProfile = () => {
-  return fetchWithAuth('/api/users/profile');
+  return fetchWithAuth('/users/profile');
 };
 
 
@@ -122,7 +122,7 @@ export const updateProfile = (profileData) => {
     headers['Content-Type'] = 'application/json';
   }
 
-  return fetch(`${API_URL}/api/users/profile`, {
+  return fetch(`${API_URL}/users/profile`, {
     method: 'PUT',
     body: profileData,
     headers,
