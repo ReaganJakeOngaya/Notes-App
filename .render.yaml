@@ -6,7 +6,7 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
       flask db upgrade
-    startCommand: "waitress-serve --port=$PORT app:app"
+    startCommand: "waitress-serve --port=$PORT run:app"
     # healthCheckPath: /health
     # healthCheckIntervalSeconds: 10
     env: python
