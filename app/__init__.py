@@ -47,7 +47,7 @@ def create_app(config_class=Config):
     
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173"], 
+            "origins": ["https://notes-app-r4yj.vercel.app"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type"],
@@ -55,7 +55,7 @@ def create_app(config_class=Config):
             "max_age": 3600
         },
         r"/auth/*": {
-            "origins": ["http://localhost:5173"],
+            "origins": ["https://notes-app-r4yj.vercel.app"],
             "methods": ["POST", "OPTIONS"],
             "allow_headers": ["Content-Type"],
             "supports_credentials": True

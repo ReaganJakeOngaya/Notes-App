@@ -4,14 +4,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://notes-app-20no.onrender.com',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
         ws: true
       },
       '/auth': {
-        target: 'http://localhost:5000',
+        target: 'https://notes-app-20no.onrender.com',
         changeOrigin: true,
         secure: false
       }
