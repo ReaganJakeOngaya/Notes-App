@@ -6,7 +6,7 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
       flask db upgrade
-    startCommand: "gunicorn --bind 0.0.0.0:$PORT run:app"
+    startCommand: "python run.py"
     # healthCheckPath: /health
     # healthCheckIntervalSeconds: 10
     env: python
