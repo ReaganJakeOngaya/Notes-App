@@ -1,38 +1,55 @@
 // api.js
-// Define the API base URL
-export const API_URL = import.meta.env.VITE_API_URL || '/api';
+// Determine base URL based on environment
+const isProduction = import.meta.env.PROD;
+export const API_URL = isProduction
+  ? 'https://notes-app-20no.onrender.com/api'
+  : import.meta.env.VITE_API_URL || '/api';
 
+// Helper function to handle responses
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({
+      message: `Request failed with status ${response.status}`
+    }));
+    throw new Error(errorData.message || errorData.error || 'Request failed');
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+};
+
+// Main fetch function with authentication
 const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
   };
-  
+
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  
+
+  // Determine the full URL
+  const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
+
   try {
-    const response = await fetch(`${API_URL}${url}`, {
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
       credentials: 'include',
-      mode: 'cors' 
+      mode: 'cors'
     });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || errorData.error || 'Request failed');
-    }
-    
-    if (response.status === 204) {
-      return null;
-    }
-    
-    return response.json();
+
+    return await handleResponse(response);
   } catch (error) {
-    console.error('API request failed:', error);
+    console.error('API request failed:', {
+      url: fullUrl,
+      error: error.message
+    });
     throw error;
   }
 };
@@ -65,7 +82,11 @@ export const getCurrentUser = async () => {
 
 // Notes API
 export const getNotes = (category = 'all', search = '') => {
-  return fetchWithAuth(`/notes?category=${category}&search=${search}`);
+  const params = new URLSearchParams();
+  if (category && category !== 'all') params.append('category', category);
+  if (search) params.append('search', search);
+  
+  return fetchWithAuth(`/notes?${params.toString()}`);
 };
 
 export const getNote = (id) => {
@@ -108,18 +129,16 @@ export const getProfile = () => {
   return fetchWithAuth('/users/profile');
 };
 
-
 export const updateProfile = (profileData) => {
   const token = localStorage.getItem('token');
-  
-  
   const headers = {
     'Authorization': `Bearer ${token}`
   };
 
-  // Remove Content-Type header for FormData
+  // Handle FormData differently
   if (!(profileData instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
+    profileData = JSON.stringify(profileData);
   }
 
   return fetch(`${API_URL}/users/profile`, {
@@ -127,11 +146,14 @@ export const updateProfile = (profileData) => {
     body: profileData,
     headers,
     credentials: 'include'
-  }).then(async (response) => {
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || errorData.message || 'Request failed');
-    }
-    return response.json();
-  });
+  }).then(handleResponse);
+};
+
+// Social Auth URLs (for OAuth flows)
+export const getGoogleAuthUrl = () => {
+  return `${API_URL}/auth/google`;
+};
+
+export const getAppleAuthUrl = () => {
+  return `${API_URL}/auth/apple`;
 };
