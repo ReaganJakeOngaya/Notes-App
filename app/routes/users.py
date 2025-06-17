@@ -7,8 +7,6 @@ from werkzeug.utils import secure_filename
 
 users_bp = Blueprint('users', __name__)
 
-
-# Allowed extensions for image uploads
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
@@ -17,7 +15,7 @@ def allowed_file(filename):
 
 @users_bp.route('/')
 def home():
-    return "Welcome to the Notes App API", 200
+    return "Welcome to the Users API", 200
 
 @users_bp.route('/profile', methods=['GET'])
 @login_required
@@ -29,22 +27,15 @@ def get_profile():
         'avatar': current_user.avatar,
         'bio': current_user.bio,
         'provider': current_user.provider
-    })
-
+    }), 200
 
 @users_bp.route('/profile', methods=['PUT'])
 @login_required
 def update_profile():
     try:
-        # Debug: Print incoming request data
-        print("Request form data:", request.form)
-        print("Request files:", request.files)
-
-        # Extract form data
-        data = request.form  # ImmutableMultiDict
+        data = request.form
         files = request.files
 
-        # Update user fields
         if 'username' in data:
             current_user.username = data['username']
         if 'email' in data:
@@ -52,7 +43,6 @@ def update_profile():
         if 'bio' in data:
             current_user.bio = data['bio']
 
-        # Handle file upload (existing working code)
         if 'avatar' in files:
             file = files['avatar']
             if file and allowed_file(file.filename):
@@ -62,30 +52,12 @@ def update_profile():
                 file.save(file_path)
                 current_user.avatar = f"/static/uploads/{filename}"
 
-        # Commit changes to database
         db.session.commit()
-
-        # Debug: Print updated user data
-        print("Updated user bio:", current_user.bio)
         return jsonify(current_user.to_dict()), 200
 
     except Exception as e:
         db.session.rollback()
-        print("Error updating profile:", str(e))
         return jsonify({"error": str(e)}), 500
-    
-@users_bp.route('/test_upload', methods=['POST'])
-def test_upload():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return jsonify({'message': 'File uploaded successfully'}), 200
-    return jsonify({'error': 'File not allowed'}), 400
 
 @users_bp.route('/check_uploads', methods=['GET'])
 def check_uploads():
@@ -98,4 +70,4 @@ def check_uploads():
         'directory': upload_folder,
         'exists': exists,
         'writable': writable
-    })
+    }), 200

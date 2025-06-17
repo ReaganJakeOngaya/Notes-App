@@ -15,30 +15,26 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
+    # Session configuration
     app.config.update(
-        SESSION_COOKIE_SECURE=True, 
+        SESSION_COOKIE_SECURE=True,
         SESSION_COOKIE_SAMESITE='None',
         SESSION_COOKIE_HTTPONLY=True,
-        PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
-    )    
+        PERMANENT_SESSION_LIFETIME=timedelta(hours=1),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024  # 16MB limit
+    )
     
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
-    
-    # In your app initialization code
-    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Create if it doesn't exist
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    
-    print(f"Upload folder: {UPLOAD_FOLDER}")
-    print(f"Exists: {os.path.exists(UPLOAD_FOLDER)}")
-    print(f"Writable: {os.access(UPLOAD_FOLDER, os.W_OK)}")
+    # Upload folder setup
+    upload_folder = os.path.join(app.root_path, 'static', 'uploads')
+    os.makedirs(upload_folder, exist_ok=True)
+    app.config['UPLOAD_FOLDER'] = upload_folder
     
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     
-    # Import models here to avoid circular imports
+    # User loader
     from app.models import User
     
     @login_manager.user_loader
