@@ -15,6 +15,10 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@users_bp.route('/')
+def home():
+    return "Welcome to the Notes App API", 200
+
 @users_bp.route('/profile', methods=['GET'])
 @login_required
 def get_profile():

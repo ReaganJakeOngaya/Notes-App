@@ -42,6 +42,10 @@ oauth = OAuth(current_app)
 #     }
 # )
 
+@auth_bp.route('/')
+def home():
+    return "Welcome to the Notes App API", 200
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()

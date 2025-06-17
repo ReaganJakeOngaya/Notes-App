@@ -6,6 +6,10 @@ from app.services.note_service import NoteService
 notes_bp = Blueprint('notes', __name__, url_prefix='/api/notes')
 note_service = NoteService()
 
+@notes_bp.route('/')
+def home():
+    return "Welcome to the Notes App API", 200
+
 @notes_bp.route('', methods=['GET'])
 @login_required
 def get_notes():
