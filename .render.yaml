@@ -6,7 +6,7 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
       flask db upgrade
-    startCommand: "waitress-serve --port=$PORT run:app"
+    startCommand: "gunicorn --bind 0.0.0.0:$PORT run:app"
     # healthCheckPath: /health
     # healthCheckIntervalSeconds: 10
     env: python
@@ -33,8 +33,8 @@ services:
       - key: UPLOAD_FOLDER
         value: /opt/render/project/src/static/uploads
 
-databases:
-  - name: noteflow-db
-    plan: free
-    databaseName: noteflow
-    user: noteflow
+    databases:
+      - name: noteflow-db
+        plan: free
+        databaseName: noteflow
+        user: noteflow
