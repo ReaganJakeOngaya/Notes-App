@@ -231,13 +231,12 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
             tabIndex={0}
             aria-label="Go to profile"
           >
-            // Update the avatar img tag in Sidebar.jsx
             <img 
               src={getAvatarUrl()} 
               alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
                 e.target.src = '/default-avatar.png';
-                e.target.onerror = null; // Prevent infinite loop if default fails
+                e.target.onerror = null; 
               }}
             />
             {!isCollapsed && <span>{user?.username}</span>}
