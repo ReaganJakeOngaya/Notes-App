@@ -30,16 +30,11 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
 
   // Function to handle avatar URL
   const getAvatarUrl = () => {
-    if (!user?.avatar) return '/default-avatar.png';
-    
-    // Check if avatar is already a full URL
-    if (user.avatar.startsWith('http')) {
-      return user.avatar;
-    }
-    
+    if (!user?.avatar) return `${API_URL}/static/default-avatar.png`;
+    if (user.avatar.startsWith('http')) return user.avatar;
     return `${API_URL}${user.avatar}`;
   };
-
+  // Handle window resize to toggle mobile view
   const handleResize = useCallback(() => {
     const isMobileView = window.innerWidth < 768;
     setIsMobile(isMobileView);

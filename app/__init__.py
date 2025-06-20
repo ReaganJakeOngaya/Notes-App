@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -19,7 +20,7 @@ def create_app(config_class=Config):
         SESSION_COOKIE_SECURE=True,
         SESSION_COOKIE_SAMESITE='None',
         SESSION_COOKIE_HTTPONLY=True,
-        PERMANENT_SESSION_LIFETIME=True,
+        PERMANENT_SESSION_LIFETIME=timedelta(days=30),
         MAX_CONTENT_LENGTH=16 * 1024 * 1024  # 16MB limit
     )
     
