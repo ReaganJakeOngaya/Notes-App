@@ -30,7 +30,7 @@ class NoteService:
             return jsonify([self._note_to_dict(note) for note in notes])
         
         except Exception as e:
-            logger.error(f"Error getting user notes: {str(e)}")
+            logger.error(f"Error getting user notes: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to fetch notes'}), 500
     
     def get_single_note(self, user_id, note_id):
@@ -154,11 +154,15 @@ class NoteService:
     
     def get_shared_notes(self, user_id):
         try:
-            shared_notes = SharedNote.query.filter_by(user_id=user_id).all()
-            return jsonify([self._note_to_dict(shared.note) for shared in shared_notes])
-        
+            shared_notes = (
+                db.session.query(Note)
+                .join(SharedNote, Note.id == SharedNote.note_id)
+                .filter(SharedNote.user_id == user_id)
+                .all()
+            )
+            return jsonify([self._note_to_dict(note) for note in shared_notes])
         except Exception as e:
-            logger.error(f"Error getting shared notes: {str(e)}")
+            logger.error(f"Error getting shared notes: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to fetch shared notes'}), 500
     
     def _note_to_dict(self, note):

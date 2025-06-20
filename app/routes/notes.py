@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.services.note_service import NoteService
 import logging
 from datetime import datetime
+from app import db
 
 notes_bp = Blueprint('notes', __name__)
 note_service = NoteService()
@@ -132,4 +133,13 @@ def after_request(response):
 @notes_bp.before_request
 @login_required
 def before_request():
-    pass
+    try:
+        # Verify database connection
+        db.session.execute('SELECT 1')
+    except Exception as e:
+        logger.error(f"Database connection error: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'Database connection failed'}), 500
+    logger.info(f"Request from user {current_user.id} at {datetime.utcnow()}")
+    return None
+
