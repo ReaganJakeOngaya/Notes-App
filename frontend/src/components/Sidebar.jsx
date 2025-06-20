@@ -233,7 +233,7 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
               src={getAvatarUrl()} 
               alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/150'; 
+                e.target.src = ''; 
                 e.target.onerror = null;
               }}
             />
