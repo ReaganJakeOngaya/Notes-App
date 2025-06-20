@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import UserProfile from '../components/UserProfile';
+import { API_URL } from '../services/api';
 import '../css/Profile.css';
 
 const Profile = () => {
@@ -15,17 +16,9 @@ const Profile = () => {
 
   // Function to handle avatar URL (modified to not use process.env)
   const getAvatarUrl = () => {
-    if (!user?.avatar) return '/default-avatar.png';
-    
-    // Check if avatar is already a full URL
-    if (user.avatar.startsWith('http')) {
-      return user.avatar;
-    }
-    
-    // For local paths, prepend the API base URL if needed
-    // Replace this with your actual API base URL or remove if not needed
-    const apiBaseUrl = ''; // Or 'http://localhost:5000' if needed
-    return `${apiBaseUrl}${user.avatar}`;
+    if (!user?.avatar) return `${API_URL}/static/default-avatar.png`;
+    if (user.avatar.startsWith('http')) return user.avatar;
+    return `${API_URL}${user.avatar}`;
   };
 
   return (

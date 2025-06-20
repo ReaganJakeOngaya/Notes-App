@@ -3,6 +3,7 @@ import { NotesContext } from '../context/NotesContext';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import NoteEditor from '../components/NoteEditor';
+import { API_URL } from '../services/api';
 import '../css/Sidebar.css';
 
 const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
