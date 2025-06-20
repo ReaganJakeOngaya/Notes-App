@@ -16,9 +16,11 @@ const Profile = () => {
 
   // Function to handle avatar URL (modified to not use process.env)
   const getAvatarUrl = () => {
-    if (!user?.avatar) return `${API_URL}/static/default-avatar.png`;
+    if (!user?.avatar) {
+      return '';
+    }
     if (user.avatar.startsWith('http')) return user.avatar;
-    return `${API_URL}${user.avatar}`;
+      return `${API_URL}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
   };
 
   return (
@@ -38,10 +40,11 @@ const Profile = () => {
         <div className="profile-card">
           <div className="profile-avatar">
             <img 
-              src={getAvatarUrl()} 
-              alt="Profile" 
+              src={getAvatarUrl() || '/placeholder-user.png'} 
+              alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
-                e.target.src = '/default-avatar.png';
+                e.target.src = '/placeholder-user.png';
+                e.target.onerror = null;
               }}
             />
             {user?.avatar && (
