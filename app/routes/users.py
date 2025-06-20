@@ -29,6 +29,7 @@ def get_profile():
         'provider': current_user.provider
     }), 200
 
+# In users.py, update the avatar saving logic
 @users_bp.route('/profile', methods=['PUT'])
 @login_required
 def update_profile():
@@ -50,10 +51,18 @@ def update_profile():
                 upload_folder = current_app.config['UPLOAD_FOLDER']
                 file_path = os.path.join(upload_folder, filename)
                 file.save(file_path)
+                # Return relative path without host
                 current_user.avatar = f"/static/uploads/{filename}"
 
         db.session.commit()
-        return jsonify(current_user.to_dict()), 200
+        return jsonify({
+            'id': current_user.id,
+            'username': current_user.username,
+            'email': current_user.email,
+            'avatar': current_user.avatar,  # Return the relative path
+            'bio': current_user.bio,
+            'provider': current_user.provider
+        }), 200
 
     except Exception as e:
         db.session.rollback()

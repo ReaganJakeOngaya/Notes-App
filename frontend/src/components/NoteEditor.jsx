@@ -14,15 +14,13 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
   const editorRef = useRef(null);
 
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && !editorRef.current.innerHTML && content) {
       editorRef.current.innerHTML = content;
     }
   }, [content]);
 
-  const handleEditorChange = () => {
-    if (editorRef.current) {
-      setContent(editorRef.current.innerHTML);
-    }
+  const handleEditorChange = (e) => {
+    setContent(e.target.innerHTML);
   };
 
   const handleSave = async () => {
@@ -72,9 +70,15 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  // Rich text editor commands
+  const execCommand = (cmd, value = null) => {
+    document.execCommand(cmd, false, value);
+    editorRef.current.focus();
+  };
+
   return (
     <div className="modal-overlay">
-      <div className="modal">
+      <div className="modal fullscreen-editor">
         <div className="modal-header">
           <h2>{note ? 'Edit Note' : 'Create New Note'}</h2>
           <button className="close-btn" onClick={onCancel}>
@@ -105,20 +109,20 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
           </div>
           <div className="form-group">
             <div className="editor-toolbar">
-              <button type="button" title="Bold">
+              <button type="button" title="Bold" onClick={() => execCommand('bold')}>
                 <i className="fa-solid fa-bold"></i>
               </button>
-              <button type="button" title="Italic">
+              <button type="button" title="Italic" onClick={() => execCommand('italic')}>
                 <i className="fa-solid fa-italic"></i>
               </button>
-              <button type="button" title="Underline">
+              <button type="button" title="Underline" onClick={() => execCommand('underline')}>
                 <i className="fa-solid fa-underline"></i>
               </button>
               <div className="divider"></div>
-              <button type="button" title="Bullet List">
+              <button type="button" title="Bullet List" onClick={() => execCommand('insertUnorderedList')}>
                 <i className="fa-solid fa-list-ul"></i>
               </button>
-              <button type="button" title="Numbered List">
+              <button type="button" title="Numbered List" onClick={() => execCommand('insertOrderedList')}>
                 <i className="fa-solid fa-list-ol"></i>
               </button>
             </div>
@@ -127,7 +131,9 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
               className="editor" 
               contentEditable="true"
               onInput={handleEditorChange}
+              onBlur={handleEditorChange}
               placeholder="Start writing your note..."
+              suppressContentEditableWarning={true}
             ></div>
           </div>
           <div className="form-group">

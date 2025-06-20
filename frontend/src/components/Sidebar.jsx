@@ -37,9 +37,7 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
       return user.avatar;
     }
     
-    // For local paths, prepend the API base URL if needed
-    const apiBaseUrl = ''; // Or 'http://localhost:5000' if needed
-    return `${apiBaseUrl}${user.avatar}`;
+    return `${API_URL}${user.avatar}`;
   };
 
   const handleResize = useCallback(() => {
@@ -233,11 +231,13 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
             tabIndex={0}
             aria-label="Go to profile"
           >
+            // Update the avatar img tag in Sidebar.jsx
             <img 
               src={getAvatarUrl()} 
               alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
                 e.target.src = '/default-avatar.png';
+                e.target.onerror = null; // Prevent infinite loop if default fails
               }}
             />
             {!isCollapsed && <span>{user?.username}</span>}

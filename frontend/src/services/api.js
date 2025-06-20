@@ -3,7 +3,7 @@
 const isProduction = import.meta.env.PROD;
 export const API_URL = isProduction
   ? 'https://notes-app-20no.onrender.com/api'
-  : import.meta.env.VITE_API_URL || '/api';
+  : import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Helper function to handle responses
 const handleResponse = async (response) => {
