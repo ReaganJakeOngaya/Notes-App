@@ -1,7 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import "../css/Login.css"
+import { API_URL } from '../services/api';
+import "../css/Login.css";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -37,40 +38,12 @@ const Login = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-    // Open Google OAuth in a new window or redirect
-      window.open(`${API_URL}/auth/google`, '_blank');
-    
-    // Alternatively, you can use a popup approach with window.open
-    // and postMessage to communicate back to your app
-    
-    // Listen for auth success message
-      window.addEventListener('message', (event) => {
-        if (event.origin === window.location.origin && event.data.authSuccess) {
-        // Handle successful login
-          navigate('/');
-        }
-      });
-    } catch (err) {
-      setError(err.message || 'Google login failed');
-    }
-  }; 
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_URL}/auth/google`;
+  };
 
-  const handleAppleLogin = async () => {
-    try {
-      window.open(`${API_URL}/auth/apple`, '_blank');
-    
-    
-      window.addEventListener('message', (event) => {
-        if (event.origin === window.location.origin && event.data.authSuccess) {
-          // Handle successful login
-          navigate('/');
-        }
-      });
-    } catch (err) {
-      setError(err.message || 'Apple login failed');
-    }
+  const handleAppleLogin = () => {
+    window.location.href = `${API_URL}/auth/apple`;
   };
 
   return (
@@ -135,14 +108,14 @@ const Login = () => {
               type='button'
               onClick={handleGoogleLogin}
             >
-              <i className="fa-brands fa-google"></i> Continue with Google
+              Continue with Google
             </button>
             <button 
               className="btn btn-apple"
               type='button'
               onClick={handleAppleLogin}
-              >
-              <i className="fa-brands fa-apple"></i> Continue with Apple
+            >
+              Continue with Apple
             </button>
           </div>
         </div>

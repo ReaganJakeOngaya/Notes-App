@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager
-from datetime import timedelta
 from config import Config
 import os
 
@@ -20,7 +19,7 @@ def create_app(config_class=Config):
         SESSION_COOKIE_SECURE=True,
         SESSION_COOKIE_SAMESITE='None',
         SESSION_COOKIE_HTTPONLY=True,
-        PERMANENT_SESSION_LIFETIME=timedelta(hours=1),
+        PERMANENT_SESSION_LIFETIME= True,
         MAX_CONTENT_LENGTH=16 * 1024 * 1024  # 16MB limit
     )
     

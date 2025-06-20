@@ -23,9 +23,7 @@ export const NotesProvider = ({ children }) => {
     try {
       const data = await getNotes(currentFilter, searchQuery);
       setNotes(data);
-    } catch (err) {
-      console.error('Error fetching notes:', err);
-      setError(err.message || 'Failed to load notes');
+    
     } finally {
       setIsLoading(false);
     }

@@ -23,24 +23,18 @@ const handleResponse = async (response) => {
 
 // Main fetch function with authentication
 const fetchWithAuth = async (url, options = {}) => {
-  const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  // Determine the full URL
   const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
 
   try {
     const response = await fetch(fullUrl, {
       ...options,
       headers,
-      credentials: 'include',
+      credentials: 'include', // Essential for cookies
       mode: 'cors'
     });
 
@@ -70,10 +64,9 @@ export const registerUser = async (credentials) => {
 };
 
 export const logoutUser = async () => {
-  await fetchWithAuth('/auth/logout', {
+  return fetchWithAuth('/auth/logout', {
     method: 'POST'
   });
-  localStorage.removeItem('token');
 };
 
 export const getCurrentUser = async () => {
@@ -130,26 +123,22 @@ export const getProfile = () => {
 };
 
 export const updateProfile = (profileData) => {
-  const token = localStorage.getItem('token');
-  const headers = {
-    'Authorization': `Bearer ${token}`
-  };
-
   // Handle FormData differently
   if (!(profileData instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-    profileData = JSON.stringify(profileData);
+    return fetchWithAuth('/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData)
+    });
   }
 
   return fetch(`${API_URL}/users/profile`, {
     method: 'PUT',
     body: profileData,
-    headers,
     credentials: 'include'
   }).then(handleResponse);
 };
 
-// Social Auth URLs (for OAuth flows)
+// Social Auth URLs
 export const getGoogleAuthUrl = () => {
   return `${API_URL}/auth/google`;
 };

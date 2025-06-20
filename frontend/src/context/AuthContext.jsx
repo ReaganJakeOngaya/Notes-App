@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Check auth status on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -43,13 +44,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateProfile = async (profileData) => {
-    try {
-      const updatedUser = await apiUpdateProfile(profileData);
-      setUser(updatedUser);
-      return updatedUser;
-    } catch (error) {
-      throw error;
-    }
+    const updatedUser = await apiUpdateProfile(profileData);
+    setUser(updatedUser);
+    return updatedUser;
   };
 
   return (
