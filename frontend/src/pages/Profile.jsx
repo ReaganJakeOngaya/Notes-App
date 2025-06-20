@@ -40,10 +40,10 @@ const Profile = () => {
         <div className="profile-card">
           <div className="profile-avatar">
             <img 
-              src={getAvatarUrl() || '/placeholder-user.png'} 
+              src={getAvatarUrl()} 
               alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
-                e.target.src = '/placeholder-user.png';
+                e.target.src = 'https://via.placeholder.com/150'; 
                 e.target.onerror = null;
               }}
             />

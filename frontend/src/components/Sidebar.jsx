@@ -233,8 +233,8 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
               src={getAvatarUrl()} 
               alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
-                e.target.src = '/default-avatar.png';
-                e.target.onerror = null; 
+                e.target.src = 'https://via.placeholder.com/150'; 
+                e.target.onerror = null;
               }}
             />
             {!isCollapsed && <span>{user?.username}</span>}
