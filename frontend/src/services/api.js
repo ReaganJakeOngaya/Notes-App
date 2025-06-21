@@ -21,8 +21,8 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
-// Enhanced fetch function with better error handling
-const fetchWithAuth = async (url, options = {}) => {
+// Enhanced fetch function with retry logic
+const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
   const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -40,19 +40,29 @@ const fetchWithAuth = async (url, options = {}) => {
     const response = await fetch(`${API_URL}${url}`, config);
     
     if (!response.ok) {
-      // Try to get error message from response
-      let errorMessage = 'Request failed';
+      let errorData;
       try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
+        errorData = await response.json();
       } catch (e) {
-        errorMessage = `Request failed with status ${response.status}`;
+        errorData = { message: `Request failed with status ${response.status}` };
       }
-      throw new Error(errorMessage);
+      
+      if (response.status >= 500 && retries > 0) {
+        console.warn(`Retrying (${retries} left)...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return fetchWithRetry(url, options, retries - 1, delay * 2);
+      }
+      
+      throw new Error(errorData.message || errorData.error || 'Request failed');
     }
     
     return response.json();
   } catch (error) {
+    if (error.message.includes('Failed to fetch') && retries > 0) {
+      console.warn(`Network error - retrying (${retries} left)...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return fetchWithRetry(url, options, retries - 1, delay * 2);
+    }
     console.error('API Error:', { url, error: error.message });
     throw error;
   }
@@ -60,27 +70,27 @@ const fetchWithAuth = async (url, options = {}) => {
 
 // Authentication API
 export const loginUser = async (credentials) => {
-  return fetchWithAuth('/auth/login', {
+  return fetchWithRetry('/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials)
   });
 };
 
 export const registerUser = async (credentials) => {
-  return fetchWithAuth('/auth/register', {
+  return fetchWithRetry('/auth/register', {
     method: 'POST',
     body: JSON.stringify(credentials)
   });
 };
 
 export const logoutUser = async () => {
-  return fetchWithAuth('/auth/logout', {
+  return fetchWithRetry('/auth/logout', {
     method: 'POST'
   });
 };
 
 export const getCurrentUser = async () => {
-  return fetchWithAuth('/users/profile');
+  return fetchWithRetry('/users/profile');
 };
 
 // Notes API
@@ -89,62 +99,62 @@ export const getNotes = (category = 'all', search = '') => {
   if (category && category !== 'all') params.append('category', category);
   if (search) params.append('search', search);
   
-  return fetchWithAuth(`/notes?${params.toString()}`);
+  return fetchWithRetry(`/notes?${params.toString()}`);
 };
 
 export const getNote = (id) => {
-  return fetchWithAuth(`/notes/${id}`);
+  return fetchWithRetry(`/notes/${id}`);
 };
 
 export const createNote = (noteData) => {
-  return fetchWithAuth('/notes', {
+  return fetchWithRetry('/notes', {
     method: 'POST',
     body: JSON.stringify(noteData)
   });
 };
 
 export const updateNote = (id, noteData) => {
-  return fetchWithAuth(`/notes/${id}`, {
+  return fetchWithRetry(`/notes/${id}`, {
     method: 'PUT',
     body: JSON.stringify(noteData)
   });
 };
 
 export const deleteNote = (id) => {
-  return fetchWithAuth(`/notes/${id}`, {
+  return fetchWithRetry(`/notes/${id}`, {
     method: 'DELETE'
   });
 };
 
 export const shareNote = (noteId, email, permission) => {
-  return fetchWithAuth(`/notes/${noteId}/share`, {
+  return fetchWithRetry(`/notes/${noteId}/share`, {
     method: 'POST',
     body: JSON.stringify({ email, permission })
   });
 };
 
 export const getSharedNotes = () => {
-  return fetchWithAuth('/notes/shared');
+  return fetchWithRetry('/notes/shared');
 };
 
 // User API
 export const getProfile = () => {
-  return fetchWithAuth('/users/profile');
+  return fetchWithRetry('/users/profile');
 };
 
 export const updateProfile = (profileData) => {
   if (!(profileData instanceof FormData)) {
-    return fetchWithAuth('/users/profile', {
+    return fetchWithRetry('/users/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData)
     });
   }
 
-  return fetch(`${API_URL}/users/profile`, {
+  return fetchWithRetry(`${API_URL}/users/profile`, {
     method: 'PUT',
     body: profileData,
     credentials: 'include'
-  }).then(handleResponse);
+  });
 };
 
 // Social Auth URLs
