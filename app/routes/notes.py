@@ -16,6 +16,10 @@ logger = logging.getLogger(__name__)
 def home():
     return "Welcome to the Notes API", 200
 
+@notes_bp.route('/', methods=['OPTIONS'])
+def handle_options():
+    return jsonify({}), 200
+
 @notes_bp.route('', methods=['GET'])
 @login_required
 def get_notes():

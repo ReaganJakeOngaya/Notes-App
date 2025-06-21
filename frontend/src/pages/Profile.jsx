@@ -41,7 +41,7 @@ const Profile = () => {
           <div className="profile-avatar">
             <img 
               src={getAvatarUrl()} 
-              alt={`${user?.username || 'User'} avatar`}
+              alt={`${user?.username} avatar`}
               onError={(e) => {
                 e.target.src = ''; 
                 e.target.onerror = null;

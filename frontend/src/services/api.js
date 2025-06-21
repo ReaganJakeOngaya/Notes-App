@@ -25,25 +25,28 @@ const handleResponse = async (response) => {
 const fetchWithAuth = async (url, options = {}) => {
   const headers = {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
     ...options.headers
   };
 
-  const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
+  const config = {
+    ...options,
+    headers,
+    credentials: 'include',
+    mode: 'cors'
+  };
 
   try {
-    const response = await fetch(fullUrl, {
-      ...options,
-      headers,
-      credentials: 'include', // Essential for cookies
-      mode: 'cors'
-    });
-
-    return await handleResponse(response);
+    const response = await fetch(`${API_URL}${url}`, config);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Request failed');
+    }
+    
+    return response.json();
   } catch (error) {
-    console.error('API request failed:', {
-      url: fullUrl,
-      error: error.message
-    });
+    console.error('API Error:', { url, error: error.message });
     throw error;
   }
 };

@@ -17,6 +17,10 @@ def allowed_file(filename):
 def home():
     return "Welcome to the Users API", 200
 
+@users_bp.route('/', methods=['OPTIONS'])
+def handle_options():
+    return jsonify({}), 200
+
 @users_bp.route('/profile', methods=['GET'])
 @login_required
 def get_profile():

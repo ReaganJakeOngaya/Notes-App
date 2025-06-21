@@ -67,6 +67,15 @@ def create_app(config_class=Config):
             "methods": ["GET"]
         }
     })
+    
+    # Add OPTIONS handler for all routes
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
    
     # Register blueprints
     from app.routes.auth import auth_bp
