@@ -21,7 +21,7 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
-// Main fetch function with authentication
+// Enhanced fetch function with better error handling
 const fetchWithAuth = async (url, options = {}) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -49,10 +49,6 @@ const fetchWithAuth = async (url, options = {}) => {
         errorMessage = `Request failed with status ${response.status}`;
       }
       throw new Error(errorMessage);
-    }
-    
-    if (response.status === 204) {
-      return null;
     }
     
     return response.json();
@@ -137,7 +133,6 @@ export const getProfile = () => {
 };
 
 export const updateProfile = (profileData) => {
-  // Handle FormData differently
   if (!(profileData instanceof FormData)) {
     return fetchWithAuth('/users/profile', {
       method: 'PUT',
