@@ -71,10 +71,21 @@ def create_app(config_class=Config):
     # Add OPTIONS handler for all routes
     @app.after_request
     def after_request(response):
-        response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        # Only add headers if not already present
+        if 'Access-Control-Allow-Origin' not in response.headers:
+            response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+    
+         # Add CSP header
+            response.headers.add(
+                'Content-Security-Policy',
+                "default-src 'self' https://notes-app-20no.onrender.com; "
+                "style-src 'self' https://cdnjs.cloudflare.com https://notes-app-20no.onrender.com; "
+                "style-src-elem 'self' https://cdnjs.cloudflare.com https://notes-app-20no.onrender.com; "
+                "font-src 'self' https://cdnjs.cloudflare.com"
+            )
         return response
    
     # Register blueprints

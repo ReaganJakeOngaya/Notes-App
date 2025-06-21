@@ -126,13 +126,7 @@ def get_shared_notes():
         logger.error(f"Error getting shared notes: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
-@notes_bp.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
+
 
 @notes_bp.before_request
 @login_required

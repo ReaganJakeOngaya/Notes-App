@@ -40,8 +40,19 @@ const fetchWithAuth = async (url, options = {}) => {
     const response = await fetch(`${API_URL}${url}`, config);
     
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Request failed');
+      // Try to get error message from response
+      let errorMessage = 'Request failed';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch (e) {
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    if (response.status === 204) {
+      return null;
     }
     
     return response.json();
