@@ -65,10 +65,21 @@ def create_app(config_class=Config):
     CORS(app, resources={
         r"/api/*": {
             "origins": ["https://notes-app-r4yj.vercel.app", "http://localhost:3000"],
-            "supports_credentials": True,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-            "max_age": 86400
+            "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+            "expose_headers": ["Content-Type"],
+            "supports_credentials": True,
+            "max_age": 86400  # 1 day
+        },
+        r"/auth/*": {
+            "origins": ["https://notes-app-r4yj.vercel.app", "http://localhost:3000"],
+            "methods": ["POST", "OPTIONS"],
+            "allow_headers": ["Content-Type"],
+            "supports_credentials": True
+        },
+        r"/static/*": {
+            "origins": ["*"],
+            "methods": ["GET"]
         }
     })
 
@@ -126,3 +137,4 @@ def create_app(config_class=Config):
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
+    
