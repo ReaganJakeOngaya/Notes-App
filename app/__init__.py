@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager
 from config import Config
+from sqlalchemy import text  # ✅ Added for raw SQL
 import os
 import logging
 
@@ -52,7 +53,7 @@ def create_app(config_class=Config):
     @app.route('/api/health')
     def health_check():
         try:
-            db.session.execute('SELECT 1')
+            db.session.execute(text('SELECT 1'))  # ✅ Fixed
             return jsonify({'status': 'healthy'}), 200
         except Exception as e:
             logger.error(f"Database health check failed: {str(e)}")
@@ -84,7 +85,7 @@ def create_app(config_class=Config):
     @app.before_request
     def check_db_connection():
         try:
-            db.session.execute('SELECT 1')
+            db.session.execute(text('SELECT 1'))  # ✅ Fixed
         except Exception as e:
             current_app.logger.error(f"Database connection failed: {str(e)}")
             return jsonify({'error': 'Database connection failed', 'detail': str(e)}), 500
@@ -92,7 +93,7 @@ def create_app(config_class=Config):
     @app.route('/api/debug-db')
     def debug_db():
         try:
-            result = db.session.execute("SELECT NOW()").fetchone()
+            result = db.session.execute(text("SELECT NOW()")).fetchone()  # ✅ Fixed
             return {"status": "connected", "time": str(result[0])}, 200
         except Exception as e:
             return {"error": str(e)}, 500
