@@ -10,6 +10,18 @@ auth_bp = Blueprint('auth', __name__)
 def home():
     return "Welcome to the Auth API", 200
 
+@auth_bp.route('/login', methods=['OPTIONS'])
+def login_options():
+    return jsonify({}), 200
+
+@auth_bp.route('/register', methods=['OPTIONS'])
+def register_options():
+    return jsonify({}), 200
+
+@auth_bp.route('/logout', methods=['OPTIONS'])
+def logout_options():
+    return jsonify({}), 200
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()

@@ -159,10 +159,7 @@ export const updateProfile = (profileData) => {
   return fetchWithRetry(`/users/profile`, {
     method: 'PUT',
     body: profileData,
-    credentials: 'include',
-    headers: {
-      // Let browser set Content-Type for FormData
-    }
+    headers: {} // Let browser set Content-Type for FormData
   });
 };
 

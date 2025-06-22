@@ -26,7 +26,8 @@ def create_app(config_class=Config):
         SESSION_COOKIE_SAMESITE='None',  # Required for cross-site cookies
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(days=30),
-        MAX_CONTENT_LENGTH=16 * 1024 * 1024  # 16MB limit
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB limit
+        SESSION_COOKIE_DOMAIN=None  # Let browser handle domain
     )
     
     # Initialize extensions
@@ -67,7 +68,7 @@ def create_app(config_class=Config):
             "origins": ["https://notes-app-r4yj.vercel.app", "http://localhost:3000"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
-            "expose_headers": ["Content-Type"],
+            "expose_headers": ["Content-Type", "Set-Cookie"],
             "supports_credentials": True,
             "max_age": 86400
         },
@@ -75,6 +76,7 @@ def create_app(config_class=Config):
             "origins": ["https://notes-app-r4yj.vercel.app", "http://localhost:3000"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
+            "expose_headers": ["Content-Type", "Set-Cookie"],
             "supports_credentials": True,
             "max_age": 86400
         },
@@ -110,10 +112,15 @@ def create_app(config_class=Config):
         if request.content_length and request.content_length < 1024:  # Log small bodies only
             logger.debug('Body: %s', request.get_data())
 
-    # Security headers
+    # Combined security headers
     @app.after_request
     def add_security_headers(response):
-        # CSP headers - updated to include frontend origin in connect-src
+        # CORS headers
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        
+        # CSP headers
         csp = (
             "default-src 'self' https://notes-app-20no.onrender.com; "
             "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app; "
@@ -125,6 +132,7 @@ def create_app(config_class=Config):
             "frame-src 'self' https://accounts.google.com https://appleid.apple.com"
         )
         response.headers['Content-Security-Policy'] = csp
+        
         return response
 
     # Error handler for consistent error responses
@@ -150,4 +158,3 @@ def create_app(config_class=Config):
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
-    
