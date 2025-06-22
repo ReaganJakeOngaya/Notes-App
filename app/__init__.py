@@ -88,7 +88,15 @@ def create_app(config_class=Config):
         except Exception as e:
             current_app.logger.error(f"Database connection failed: {str(e)}")
             return jsonify({'error': 'Database connection failed', 'detail': str(e)}), 500
-
+     
+    @app.route('/api/debug-db')
+    def debug_db():
+        try:
+            result = db.session.execute("SELECT NOW()").fetchone()
+            return {"status": "connected", "time": str(result[0])}, 200
+        except Exception as e:
+            return {"error": str(e)}, 500
+  
 
     @app.before_request
     def log_request_info():

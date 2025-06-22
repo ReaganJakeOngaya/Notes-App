@@ -7,7 +7,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:////tmp/noteflow.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,          # Check connection health before using
