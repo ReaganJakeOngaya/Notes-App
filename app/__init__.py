@@ -46,6 +46,11 @@ def create_app(config_class=Config):
     os.makedirs(upload_folder, exist_ok=True)
     app.config['UPLOAD_FOLDER'] = upload_folder
     
+    @app.route('/')
+    def index():
+        return jsonify({"message": "Welcome to Notes App API. Use /api/ endpoints."}), 200
+
+    
     @app.route('/static/<path:filename>')
     def static_files(filename):
         return send_from_directory(os.path.join(app.root_path, 'static'), filename)
