@@ -86,16 +86,9 @@ def create_app(config_class=Config):
         try:
             db.session.execute('SELECT 1')
         except Exception as e:
-            logger.error(f"Database connection failed: {str(e)}")
-            db.session.rollback()
-            try:
-                db.session.remove()
-                db.get_engine(app).dispose()
-                db.create_scoped_session()
-                logger.info("Database reconnected successfully")
-            except Exception as e:
-                logger.error(f"Database reconnection failed: {str(e)}")
-                return jsonify({'error': 'Database connection failed'}), 500
+            current_app.logger.error(f"Database connection failed: {str(e)}")
+            return jsonify({'error': 'Database connection failed', 'detail': str(e)}), 500
+
 
     @app.before_request
     def log_request_info():
