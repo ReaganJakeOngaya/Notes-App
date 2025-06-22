@@ -39,6 +39,12 @@ const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
   try {
     const response = await fetch(`${API_URL}${url}`, config);
     
+    // Handle 401 unauthorized
+    if (response.status === 401) {
+      // Handle token refresh or redirect to login
+      throw new Error('Unauthorized');
+    }
+    
     if (!response.ok) {
       let errorData;
       try {

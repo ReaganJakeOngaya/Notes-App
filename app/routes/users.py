@@ -84,3 +84,8 @@ def check_uploads():
         'exists': exists,
         'writable': writable
     }), 200
+    
+@users_bp.route('/profile', methods=['OPTIONS'])
+@login_required
+def profile_options():
+    return jsonify({}), 200

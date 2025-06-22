@@ -73,9 +73,10 @@ def create_app(config_class=Config):
         },
         r"/auth/*": {
             "origins": ["https://notes-app-r4yj.vercel.app", "http://localhost:3000"],
-            "methods": ["POST", "OPTIONS"],
-            "allow_headers": ["Content-Type"],
-            "supports_credentials": True
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True,
+            "max_age": 86400
         },
         r"/static/*": {
             "origins": ["*"],
@@ -83,7 +84,7 @@ def create_app(config_class=Config):
         }
     })
 
-    # Database connection management
+    # Database connetion management
     @app.before_request
     def check_db_connection():
         try:
@@ -118,7 +119,8 @@ def create_app(config_class=Config):
             "style-src-elem 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; "
             "font-src 'self' https://cdnjs.cloudflare.com data:; "
             "img-src 'self' data: https:; "
-            "script-src 'self' 'unsafe-inline'"
+            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+            "frame-src 'self' https://accounts.google.com https://appleid.apple.com"
         )
         response.headers['Content-Security-Policy'] = csp
         return response
