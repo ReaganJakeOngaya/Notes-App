@@ -23,7 +23,7 @@ def create_app(config_class=Config):
     # Session configuration
     app.config.update(
         SESSION_COOKIE_SECURE=True,
-        SESSION_COOKIE_SAMESITE='None',
+        SESSION_COOKIE_SAMESITE='None',  # Required for cross-site cookies
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(days=30),
         MAX_CONTENT_LENGTH=16 * 1024 * 1024  # 16MB limit
@@ -61,7 +61,7 @@ def create_app(config_class=Config):
             logger.error(f"Database health check failed: {str(e)}")
             return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
     
-    # CORS configuration
+    # Enhanced CORS configuration
     CORS(app, resources={
         r"/api/*": {
             "origins": ["https://notes-app-r4yj.vercel.app", "http://localhost:3000"],
@@ -69,7 +69,7 @@ def create_app(config_class=Config):
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type"],
             "supports_credentials": True,
-            "max_age": 86400  # 1 day
+            "max_age": 86400
         },
         r"/auth/*": {
             "origins": ["https://notes-app-r4yj.vercel.app", "http://localhost:3000"],
@@ -84,7 +84,7 @@ def create_app(config_class=Config):
         }
     })
 
-    # Database connetion management
+    # Database connection management
     @app.before_request
     def check_db_connection():
         try:
@@ -102,19 +102,21 @@ def create_app(config_class=Config):
                 logger.error(f"Database reconnection failed: {str(e)}")
                 return jsonify({'error': 'Database connection failed'}), 500
 
+    # Request logging for debugging
+    @app.before_request
+    def log_request_info():
+        logger.info(f"Incoming request: {request.method} {request.path}")
+        logger.debug('Headers: %s', request.headers)
+        if request.content_length and request.content_length < 1024:  # Log small bodies only
+            logger.debug('Body: %s', request.get_data())
+
     # Security headers
     @app.after_request
     def add_security_headers(response):
-        # CORS headers
-        response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS')
-        
-        # CSP headers
+        # CSP headers - updated to include frontend origin in connect-src
         csp = (
             "default-src 'self' https://notes-app-20no.onrender.com; "
-            "connect-src 'self' https://notes-app-20no.onrender.com; "
+            "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app; "
             "style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; "
             "style-src-elem 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; "
             "font-src 'self' https://cdnjs.cloudflare.com data:; "
@@ -124,7 +126,16 @@ def create_app(config_class=Config):
         )
         response.headers['Content-Security-Policy'] = csp
         return response
-   
+
+    # Error handler for consistent error responses
+    @app.errorhandler(500)
+    def handle_server_error(e):
+        response = jsonify({
+            'error': 'Internal server error',
+            'message': str(e)
+        })
+        return response, 500
+    
     # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.notes import notes_bp

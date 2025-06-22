@@ -156,16 +156,24 @@ export const updateProfile = (profileData) => {
     });
   }
 
-  return fetchWithRetry(`${API_URL}/users/profile`, {
+  return fetchWithRetry(`/users/profile`, {
     method: 'PUT',
     body: profileData,
-    credentials: 'include'
+    credentials: 'include',
+    headers: {
+      // Let browser set Content-Type for FormData
+    }
   });
 };
 
 // Social Auth URLs
 export const getGoogleAuthUrl = () => {
-  return `${API_URL}/auth/google`;
+  try {
+    return `${API_URL}/auth/google`;
+  } catch (error) {
+    console.error('Error constructing Google auth URL:', error);
+    return '';
+  }
 };
 
 export const getAppleAuthUrl = () => {
