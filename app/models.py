@@ -14,9 +14,9 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
-    avatar = db.Column(db.String(200))  # URL to profile image
+    avatar = db.Column(db.String(500))  # URL to profile image
     bio = db.Column(db.Text)
-    provider = db.Column(db.String(50))  # 'google', 'apple', 'email'
+    provider = db.Column(db.String(200))  # 'google', 'apple', 'email'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -115,13 +115,13 @@ def create_app(config_class=Config):
     def add_security_headers(response):
         # ✅ No manual CORS headers here to avoid duplication
         csp = (
-            "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com; "
-            "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app; "
-            "style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; "
-            "style-src-elem 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; "
-            "font-src 'self' https://cdnjs.cloudflare.com data:; "
-            "img-src 'self' data: https:; "
-            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+            "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com;"
+            "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app;"
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
+            "style-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;"
+            "img-src 'self' data: https:;"
+            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;"
             "frame-src 'self' https://accounts.google.com https://appleid.apple.com"
         )
         response.headers['Content-Security-Policy'] = csp
