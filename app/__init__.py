@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager
 from config import Config
-from sqlalchemy import text  # ✅ Added for raw SQL
+from sqlalchemy import text
 import os
 import logging
 
@@ -16,11 +16,12 @@ login_manager = LoginManager()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    
+
     # Configure logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    
+    logging.getLogger('flask_cors').level = logging.DEBUG  # Optional: Debug CORS issues
+
     # Session configuration
     app.config.update(
         SESSION_COOKIE_SECURE=True,
@@ -30,27 +31,26 @@ def create_app(config_class=Config):
         MAX_CONTENT_LENGTH=16 * 1024 * 1024,
         SESSION_COOKIE_DOMAIN=None
     )
-    
+
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    
+
     from app.models import User
-    
+
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-    
+
     upload_folder = os.path.join(app.root_path, 'static', 'uploads')
     os.makedirs(upload_folder, exist_ok=True)
     app.config['UPLOAD_FOLDER'] = upload_folder
-    
+
     @app.route('/')
     def index():
         return jsonify({"message": "Welcome to Notes App API. Use /api/ endpoints."}), 200
 
-    
     @app.route('/static/<path:filename>')
     def static_files(filename):
         return send_from_directory(os.path.join(app.root_path, 'static'), filename)
@@ -58,12 +58,13 @@ def create_app(config_class=Config):
     @app.route('/api/health')
     def health_check():
         try:
-            db.session.execute(text('SELECT 1'))  # ✅ Fixed
+            db.session.execute(text('SELECT 1'))
             return jsonify({'status': 'healthy'}), 200
         except Exception as e:
             logger.error(f"Database health check failed: {str(e)}")
             return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
 
+    # ✅ CORS Configuration
     CORS(app, resources={
         r"/api/*": {
             "origins": ["https://notes-app-r4yj.vercel.app"],
@@ -90,19 +91,18 @@ def create_app(config_class=Config):
     @app.before_request
     def check_db_connection():
         try:
-            db.session.execute(text('SELECT 1'))  # ✅ Fixed
+            db.session.execute(text('SELECT 1'))
         except Exception as e:
             current_app.logger.error(f"Database connection failed: {str(e)}")
             return jsonify({'error': 'Database connection failed', 'detail': str(e)}), 500
-     
+
     @app.route('/api/debug-db')
     def debug_db():
         try:
-            result = db.session.execute(text("SELECT NOW()")).fetchone()  # ✅ Fixed
+            result = db.session.execute(text("SELECT NOW()")).fetchone()
             return {"status": "connected", "time": str(result[0])}, 200
         except Exception as e:
             return {"error": str(e)}, 500
-  
 
     @app.before_request
     def log_request_info():
@@ -113,11 +113,7 @@ def create_app(config_class=Config):
 
     @app.after_request
     def add_security_headers(response):
-        # Overwrite instead of add to avoid duplicate headers
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        
+        # ✅ No manual CORS headers here to avoid duplication
         csp = (
             "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com; "
             "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app; "
@@ -139,14 +135,15 @@ def create_app(config_class=Config):
         })
         return response, 500
 
+    # Register Blueprints
     from app.routes.auth import auth_bp
     from app.routes.notes import notes_bp
     from app.routes.users import users_bp
-    
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(notes_bp, url_prefix='/api/notes')
     app.register_blueprint(users_bp, url_prefix='/api/users')
-    
+
     return app
 
 if __name__ == '__main__':
