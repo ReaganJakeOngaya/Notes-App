@@ -1,178 +1,120 @@
 // api.js
+
 // Determine base URL based on environment
 const isProduction = import.meta.env.PROD;
 export const API_URL = isProduction
   ? 'https://notes-app-20no.onrender.com/api'
   : import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Helper function to handle responses
+// Helper: handle all responses
 const handleResponse = async (response) => {
+  if (response.status === 204) return null;
+
+  const isJSON = response.headers
+    .get('content-type')
+    ?.includes('application/json');
+
+  const data = isJSON ? await response.json() : null;
+
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({
-      message: `Request failed with status ${response.status}`
-    }));
-    throw new Error(errorData.message || errorData.error || 'Request failed');
+    const errorMsg = data?.message || data?.error || response.statusText;
+    throw new Error(errorMsg);
   }
 
-  if (response.status === 204) {
-    return null;
-  }
-
-  return response.json();
+  return data;
 };
 
-// Enhanced fetch function with retry logic
+// Core fetch with retry and credentials
 const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    ...options.headers
-  };
-
   const config = {
-    ...options,
-    headers,
+    method: options.method || 'GET',
+    headers: {
+      Accept: 'application/json',
+      ...(!(options.body instanceof FormData) && { 'Content-Type': 'application/json' }),
+      ...options.headers,
+    },
+    body: options.body instanceof FormData
+      ? options.body
+      : options.body
+        ? JSON.stringify(options.body)
+        : undefined,
     credentials: 'include',
-    mode: 'cors'
+    mode: 'cors',
   };
 
   try {
-    const response = await fetch(`${API_URL}${url}`, config);
-    
-    // Handle 401 unauthorized
-    if (response.status === 401) {
-      // Handle token refresh or redirect to login
-      throw new Error('Unauthorized');
-    }
-    
-    if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch (e) {
-        errorData = { message: `Request failed with status ${response.status}` };
-      }
-      
-      if (response.status >= 500 && retries > 0) {
-        console.warn(`Retrying (${retries} left)...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return fetchWithRetry(url, options, retries - 1, delay * 2);
-      }
-      
-      throw new Error(errorData.message || errorData.error || 'Request failed');
-    }
-    
-    return response.json();
-  } catch (error) {
-    if (error.message.includes('Failed to fetch') && retries > 0) {
-      console.warn(`Network error - retrying (${retries} left)...`);
+    const res = await fetch(`${API_URL}${url}`, config);
+    if (res.status === 401) throw new Error('Unauthorized');
+    return await handleResponse(res);
+  } catch (err) {
+    if (retries > 0 && err.message.includes('fetch')) {
+      console.warn(`Retrying request to ${url} (${retries} left)...`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return fetchWithRetry(url, options, retries - 1, delay * 2);
     }
-    console.error('API Error:', { url, error: error.message });
-    throw error;
+    console.error('API Error:', { url, error: err.message });
+    throw err;
   }
 };
 
-// Authentication API
-export const loginUser = async (credentials) => {
-  return fetchWithRetry('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(credentials)
-  });
-};
+// ---------- AUTH ----------
+export const loginUser = (credentials) =>
+  fetchWithRetry('/auth/login', { method: 'POST', body: credentials });
 
-export const registerUser = async (credentials) => {
-  return fetchWithRetry('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(credentials)
-  });
-};
+export const registerUser = (credentials) =>
+  fetchWithRetry('/auth/register', { method: 'POST', body: credentials });
 
-export const logoutUser = async () => {
-  return fetchWithRetry('/auth/logout', {
-    method: 'POST'
-  });
-};
+export const logoutUser = () =>
+  fetchWithRetry('/auth/logout', { method: 'POST' });
 
-export const getCurrentUser = async () => {
-  return fetchWithRetry('/users/profile');
-};
+export const getCurrentUser = () =>
+  fetchWithRetry('/users/profile');
 
-// Notes API
+// ---------- NOTES ----------
 export const getNotes = (category = 'all', search = '') => {
   const params = new URLSearchParams();
   if (category && category !== 'all') params.append('category', category);
   if (search) params.append('search', search);
-  
-  return fetchWithRetry(`/notes?${params.toString()}`);
+  return fetchWithRetry(`/notes?${params}`);
 };
 
-export const getNote = (id) => {
-  return fetchWithRetry(`/notes/${id}`);
-};
+export const getNote = (id) =>
+  fetchWithRetry(`/notes/${id}`);
 
-export const createNote = (noteData) => {
-  return fetchWithRetry('/notes', {
+export const createNote = (noteData) =>
+  fetchWithRetry('/notes', { method: 'POST', body: noteData });
+
+export const updateNote = (id, noteData) =>
+  fetchWithRetry(`/notes/${id}`, { method: 'PUT', body: noteData });
+
+export const deleteNote = (id) =>
+  fetchWithRetry(`/notes/${id}`, { method: 'DELETE' });
+
+export const shareNote = (noteId, email, permission) =>
+  fetchWithRetry(`/notes/${noteId}/share`, {
     method: 'POST',
-    body: JSON.stringify(noteData)
+    body: { email, permission }
   });
-};
 
-export const updateNote = (id, noteData) => {
-  return fetchWithRetry(`/notes/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(noteData)
-  });
-};
+export const getSharedNotes = () =>
+  fetchWithRetry('/notes/shared');
 
-export const deleteNote = (id) => {
-  return fetchWithRetry(`/notes/${id}`, {
-    method: 'DELETE'
-  });
-};
-
-export const shareNote = (noteId, email, permission) => {
-  return fetchWithRetry(`/notes/${noteId}/share`, {
-    method: 'POST',
-    body: JSON.stringify({ email, permission })
-  });
-};
-
-export const getSharedNotes = () => {
-  return fetchWithRetry('/notes/shared');
-};
-
-// User API
-export const getProfile = () => {
-  return fetchWithRetry('/users/profile');
-};
+// ---------- USERS ----------
+export const getProfile = () =>
+  fetchWithRetry('/users/profile');
 
 export const updateProfile = (profileData) => {
-  if (!(profileData instanceof FormData)) {
-    return fetchWithRetry('/users/profile', {
-      method: 'PUT',
-      body: JSON.stringify(profileData)
-    });
-  }
-
-  return fetchWithRetry(`/users/profile`, {
+  const isFormData = profileData instanceof FormData;
+  return fetchWithRetry('/users/profile', {
     method: 'PUT',
     body: profileData,
-    headers: {} // Let browser set Content-Type for FormData
+    ...(isFormData ? { headers: {} } : {})
   });
 };
 
-// Social Auth URLs
-export const getGoogleAuthUrl = () => {
-  try {
-    return `${API_URL}/auth/google`;
-  } catch (error) {
-    console.error('Error constructing Google auth URL:', error);
-    return '';
-  }
-};
+// ---------- SOCIAL AUTH ----------
+export const getGoogleAuthUrl = () =>
+  `${API_URL}/auth/google`;
 
-export const getAppleAuthUrl = () => {
-  return `${API_URL}/auth/apple`;
-};
+export const getAppleAuthUrl = () =>
+  `${API_URL}/auth/apple`;
