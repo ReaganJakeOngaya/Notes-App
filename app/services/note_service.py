@@ -25,7 +25,7 @@ class NoteService:
                     (Note.title.ilike(f'%{search}%')) | 
                     (Note.content.ilike(f'%{search}%'))
                 )
-            
+            # Order by modified date, most recent first
             notes = query.order_by(Note.modified_at.desc()).all()
             return jsonify([self._note_to_dict(note) for note in notes])
         
@@ -45,7 +45,7 @@ class NoteService:
             return jsonify(self._note_to_dict(note))
         
         except Exception as e:
-            logger.error(f"Error getting single note: {str(e)}")
+            logger.error(f"Error getting single note: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to fetch note'}), 500
     
     def create_note(self, user_id, data):
@@ -79,7 +79,7 @@ class NoteService:
             return jsonify(self._note_to_dict(note)), 201
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error creating note: {str(e)}")
+            logger.error(f"Error creating note: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to create note'}), 500
     
     def update_note(self, user_id, note_id, data):
@@ -106,7 +106,7 @@ class NoteService:
         
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error updating note: {str(e)}")
+            logger.error(f"Error updating note: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to update note'}), 500
     
     def delete_note(self, user_id, note_id):
@@ -115,13 +115,16 @@ class NoteService:
             if not note:
                 return jsonify({'error': 'Note not found'}), 404
             
+            # First delete any shared notes associated with this note
+            SharedNote.query.filter_by(note_id=note_id).delete()
+            
             db.session.delete(note)
             db.session.commit()
             return jsonify({'message': 'Note deleted successfully'}), 200
         
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error deleting note: {str(e)}")
+            logger.error(f"Error deleting note: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to delete note'}), 500
     
     def share_note(self, user_id, note_id, recipient_email, permission):
@@ -134,8 +137,22 @@ class NoteService:
             if not recipient:
                 return jsonify({'error': 'Recipient not found'}), 404
             
+            if recipient.id == user_id:
+                return jsonify({'error': 'Cannot share note with yourself'}), 400
+            
             if permission not in ['view', 'edit']:
                 permission = 'view'
+            
+            # Check if note is already shared with this user
+            existing_share = SharedNote.query.filter_by(
+                note_id=note_id,
+                user_id=recipient.id
+            ).first()
+            
+            if existing_share:
+                existing_share.permission = permission
+                db.session.commit()
+                return jsonify({'message': 'Share permission updated successfully'}), 200
             
             shared_note = SharedNote(
                 note_id=note_id,
@@ -149,7 +166,7 @@ class NoteService:
         
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error sharing note: {str(e)}")
+            logger.error(f"Error sharing note: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to share note'}), 500
     
     def get_shared_notes(self, user_id):
@@ -176,10 +193,11 @@ class NoteService:
                 'favorite': note.favorite,
                 'created_at': note.created_at.isoformat(),
                 'modified_at': note.modified_at.isoformat(),
-                'author': note.author.username if note.author else None
+                'author': note.author.username if note.author else None,
+                'shared': hasattr(note, 'permission')  # Indicates if this is a shared note
             }
         except Exception as e:
-            logger.error(f"Error converting note to dict: {str(e)}")
+            logger.error(f"Error converting note to dict: {str(e)}", exc_info=True)
             return {
                 'id': note.id,
                 'title': note.title,
@@ -189,5 +207,6 @@ class NoteService:
                 'favorite': note.favorite,
                 'created_at': note.created_at.isoformat(),
                 'modified_at': note.modified_at.isoformat(),
-                'author': None
-            }
+                'author': None,
+                'shared': False
+            } 

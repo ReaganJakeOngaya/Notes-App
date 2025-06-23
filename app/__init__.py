@@ -20,7 +20,7 @@ def create_app(config_class=Config):
     # Configure logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    logging.getLogger('flask_cors').level = logging.DEBUG  # Optional: Debug CORS issues
+    logging.getLogger('flask_cors').level = logging.DEBUG
 
     # Session configuration
     app.config.update(
@@ -64,7 +64,7 @@ def create_app(config_class=Config):
             logger.error(f"Database health check failed: {str(e)}")
             return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
 
-    # ✅ CORS Configuration
+    # CORS Configuration
     CORS(app, resources={
         r"/api/*": {
             "origins": ["https://notes-app-r4yj.vercel.app"],
@@ -113,13 +113,19 @@ def create_app(config_class=Config):
 
     @app.after_request
     def add_security_headers(response):
-        # ✅ No manual CORS headers here to avoid duplication
+        if request.method == 'OPTIONS':
+            response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
+            response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            response.headers.add('Access-Control-Max-Age', '86400')
+        
         csp = (
             "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com;"
             "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app;"
             "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
             "style-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data: blob:;"
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data: blob: 'unsafe-inline';"
             "img-src 'self' data: https: blob:;"
             "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;"
             "frame-src 'self' https://accounts.google.com https://appleid.apple.com"
