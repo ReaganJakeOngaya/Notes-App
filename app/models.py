@@ -13,7 +13,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(200))
     avatar = db.Column(db.String(500))  # URL to profile image
     bio = db.Column(db.Text)
     provider = db.Column(db.String(200))  # 'google', 'apple', 'email'
