@@ -547,3 +547,49 @@
         background: rgba(17, 24, 39, 0.85);
     }
 }
+
+/* Mobile Toggle Button */
+.mobile-toggle-btn {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 90;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: none;
+}
+
+[data-theme="dark"] .mobile-toggle-btn {
+    background: rgba(31, 41, 55, 0.9);
+}
+
+.mobile-toggle-btn:hover {
+    transform: scale(1.05);
+}
+
+.mobile-toggle-btn i {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .mobile-toggle-btn {
+        display: block;
+    }
+    
+    .app-container.sidebar-collapsed {
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-toggle-btn {
+        top: 0.75rem;
+        left: 0.75rem;
+    }
+}

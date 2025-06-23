@@ -264,7 +264,7 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar, onNewNote, onToggle }) => 
             aria-label="Go to profile"
           >
             <img 
-              src={getAvatarUrl() || '/default-avatar.png'} 
+              // src={getAvatarUrl() || '/default-avatar.png'}
               alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
                 e.target.src = '/default-avatar.png';

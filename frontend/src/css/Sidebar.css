@@ -5,7 +5,7 @@
     top: 0;
     height: 100vh;
     width: 280px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-right: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 
@@ -17,10 +17,11 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transform: translateX(0);
 }
 
 [data-theme="dark"] .sidebar {
-    background: rgba(31, 41, 55, 0.9);
+    background: rgba(31, 41, 55, 0.95);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 
         0 16px 32px rgba(0, 0, 0, 0.2),
@@ -228,10 +229,32 @@
     font-size: 0.9375rem;
     width: 100%;
     font-weight: 500;
+    padding-right: 1.5rem;
 }
 
 .search-box input::placeholder {
     color: var(--text-muted);
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.clear-search-btn:hover {
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .clear-search-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .search-box.collapsed {
@@ -351,6 +374,18 @@
     flex-shrink: 0;
 }
 
+.active-indicator {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: #667eea;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
 /* Sidebar Footer */
 .sidebar-footer {
     padding: 1rem 1.25rem;
@@ -391,20 +426,33 @@
 }
 
 .user-profile img {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
     object-fit: cover;
     border: 2px solid rgba(102, 126, 234, 0.3);
     flex-shrink: 0;
 }
 
-.user-profile span {
+.user-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.user-info .username {
     font-weight: 600;
     color: var(--text-primary);
     font-size: 0.9375rem;
-    flex: 1;
-    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-info .email {
+    font-size: 0.75rem;
+    color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -426,6 +474,9 @@
     font-weight: 500;
     font-size: 0.9375rem;
     text-decoration: none;
+    border: none;
+    width: 100%;
+    text-align: left;
 }
 
 [data-theme="dark"] .theme-toggle,
@@ -440,20 +491,6 @@
     color: var(--text-primary);
     border-color: rgba(102, 126, 234, 0.3);
     transform: translateY(-1px);
-}
-
-.theme-toggle button {
-    background: transparent;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 500;
-    font-size: 0.9375rem;
-    width: 100%;
-    text-align: left;
 }
 
 .theme-toggle i,
@@ -503,7 +540,7 @@
     padding: 0.75rem;
 }
 
-.sidebar.collapsed .user-profile span {
+.sidebar.collapsed .user-profile .user-info {
     display: none;
 }
 
@@ -551,6 +588,35 @@
     pointer-events: all;
 }
 
+/* Mobile Toggle Button */
+.mobile-toggle-btn {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 90;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: none;
+}
+
+[data-theme="dark"] .mobile-toggle-btn {
+    background: rgba(31, 41, 55, 0.9);
+}
+
+.mobile-toggle-btn:hover {
+    transform: scale(1.05);
+}
+
+.mobile-toggle-btn i {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
@@ -575,6 +641,10 @@
     
     .collapse-btn {
         display: none;
+    }
+
+    .mobile-toggle-btn {
+        display: block;
     }
 }
 
@@ -606,6 +676,11 @@
     .logout-btn {
         padding: 0.625rem 0.875rem;
         font-size: 0.875rem;
+    }
+
+    .mobile-toggle-btn {
+        top: 0.75rem;
+        left: 0.75rem;
     }
 }
 
@@ -677,5 +752,5 @@
     
     .new-note-btn::before {
         display: none;
-    }
-}
+    }   
+}    

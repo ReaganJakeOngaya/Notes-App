@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import NoteCard from '../components/NoteCard';
 import NoteEditor from '../components/NoteEditor';
@@ -21,15 +21,37 @@ const Home = () => {
   const [editingNote, setEditingNote] = useState(null);
   const [expandedNoteId, setExpandedNoteId] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobileView = window.innerWidth < 768;
+      setIsMobile(isMobileView);
+      if (!isMobileView) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleEditNote = (note) => {
     setEditingNote(note);
     setShowEditor(true);
+    if (isMobile) {
+      setIsMobileOpen(false);
+    }
   };
 
   const handleNewNote = () => {
     setEditingNote(null);
     setShowEditor(true);
+    if (isMobile) {
+      setIsMobileOpen(false);
+    }
   };
 
   const handleCloseEditor = () => {
@@ -45,9 +67,27 @@ const Home = () => {
     setIsSidebarCollapsed(collapsed);
   };
 
+  const toggleMobileSidebar = () => {
+    setIsMobileOpen(!isMobileOpen);
+  };
+
   return (
     <div className={`app-container ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      {/* Mobile Toggle Button */}
+      {isMobile && (
+        <button 
+          className="mobile-toggle-btn"
+          onClick={toggleMobileSidebar}
+          aria-label="Toggle sidebar"
+          aria-expanded={isMobileOpen}
+        >
+          <i className="fa-solid fa-bars"></i>
+        </button>
+      )}
+
       <Sidebar 
+        isMobileOpen={isMobileOpen}
+        toggleMobileSidebar={toggleMobileSidebar}
         onNewNote={handleNewNote} 
         onToggle={handleSidebarToggle}
       />
@@ -67,12 +107,14 @@ const Home = () => {
               <button 
                 className={`view-btn ${currentView === 'grid' ? 'active' : ''}`}
                 onClick={() => setCurrentView('grid')}
+                aria-label="Grid view"
               >
                 <i className="fa-solid fa-grid"></i>
               </button>
               <button 
                 className={`view-btn ${currentView === 'list' ? 'active' : ''}`}
                 onClick={() => setCurrentView('list')}
+                aria-label="List view"
               >
                 <i className="fa-solid fa-list"></i>
               </button>
@@ -81,6 +123,7 @@ const Home = () => {
               <select 
                 value={currentSort}
                 onChange={(e) => setCurrentSort(e.target.value)}
+                aria-label="Sort notes by"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -99,7 +142,11 @@ const Home = () => {
               </div>
               <h3>No notes yet</h3>
               <p>Create your first note to get started</p>
-              <button className="btn btn-primary" onClick={handleNewNote}>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleNewNote}
+                aria-label="Create new note"
+              >
                 <i className="fa-solid fa-plus"></i>
                 Create Note
               </button>
