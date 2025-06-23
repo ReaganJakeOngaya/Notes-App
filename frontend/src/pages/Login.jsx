@@ -55,37 +55,43 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <div className="form-group">
-              <label>Username</label>
+              <label htmlFor="username">Username</label>
               <input
                 type="text"
+                id="username"
                 name="username"
                 value={credentials.username}
                 onChange={handleChange}
                 required
+                autoComplete="username"
               />
             </div>
           )}
           
           <div className="form-group">
-            <label>Email</label>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
+              id="email"
               name="email"
               value={credentials.email}
               onChange={handleChange}
               required
+              autoComplete="email"
             />
           </div>
           
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
+              id="password"
               name="password"
               value={credentials.password}
               onChange={handleChange}
               required
               minLength="6"
+              autoComplete={isLogin ? "current-password" : "new-password"}
             />
           </div>
           
