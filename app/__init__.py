@@ -43,6 +43,11 @@ def create_app(config_class=Config):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    # Static file uploads
     upload_folder = os.path.join(app.root_path, 'static', 'uploads')
     os.makedirs(upload_folder, exist_ok=True)
     app.config['UPLOAD_FOLDER'] = upload_folder
@@ -64,7 +69,7 @@ def create_app(config_class=Config):
             logger.error(f"Database health check failed: {str(e)}")
             return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
 
-    # CORS Configuration - Simplified to avoid duplicate headers
+    # CORS Configuration
     CORS(app, resources={
         r"/api/*": {
             "origins": ["https://notes-app-r4yj.vercel.app"],
@@ -90,7 +95,8 @@ def create_app(config_class=Config):
     })
 
     @app.before_request
-    def check_db_connection():
+    def before_request_hooks():
+        logger.info(f"Incoming request: {request.method} {request.path}")
         try:
             db.session.execute(text('SELECT 1'))
         except Exception as e:
@@ -105,13 +111,9 @@ def create_app(config_class=Config):
         except Exception as e:
             return {"error": str(e)}, 500
 
-    @app.before_request
-    def log_request_info():
-        logger.info(f"Incoming request: {request.method} {request.path}")
-
     @app.after_request
     def add_security_headers(response):
-        # Removed duplicate CORS headers - let Flask-CORS handle them
+        # Let Flask-CORS handle CORS headers
         csp = (
             "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com;"
             "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app;"
@@ -132,7 +134,7 @@ def create_app(config_class=Config):
             'message': str(e)
         })
         return response, 500
-    
+
     @app.teardown_request
     def teardown_request(exception=None):
         if exception:
@@ -153,6 +155,7 @@ def create_app(config_class=Config):
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
+
 
     # # CORS Configuration
     # CORS(app, resources={
