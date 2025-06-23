@@ -6,7 +6,7 @@ import NoteEditor from '../components/NoteEditor';
 import { API_URL } from '../services/api';
 import '../css/Sidebar.css';
 
-const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
+const Sidebar = ({ isMobileOpen, toggleMobileSidebar, onNewNote, onToggle }) => {
   const { 
     currentFilter, 
     setCurrentFilter, 
@@ -14,12 +14,13 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
     fetchSharedNotes
   } = useContext(NotesContext);
   
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, toggleTheme } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showEditor, setShowEditor] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  const [searchValue, setSearchValue] = useState('');
 
   const categories = [
     { id: 'all', name: 'All Notes', icon: 'fa-solid fa-inbox' },
@@ -35,26 +36,36 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
       return '';
     }
     if (user.avatar.startsWith('http')) return user.avatar;
-      return `${API_URL}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
+    return `${API_URL}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
   };
+
   // Handle window resize to toggle mobile view
   const handleResize = useCallback(() => {
     const isMobileView = window.innerWidth < 768;
     setIsMobile(isMobileView);
     if (window.innerWidth >= 768) {
       setIsCollapsed(false);
+      onToggle(false);
     }
-  }, []);
+  }, [onToggle]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
-  
-  const handleNewNote = useCallback(() => {
-    setEditingNote(null);
-    setShowEditor(true);
-  }, []);
+
+  const toggleSidebar = useCallback(() => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    onToggle(newState);
+  }, [isCollapsed, onToggle]);
+
+  const handleNewNoteClick = useCallback(() => {
+    onNewNote();
+    if (isMobile) {
+      toggleMobileSidebar();
+    }
+  }, [onNewNote, isMobile, toggleMobileSidebar]);
 
   const handleCloseEditor = useCallback(() => {
     setShowEditor(false);
@@ -62,7 +73,14 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
   }, []);
 
   const handleSearch = useCallback((e) => {
-    setSearchQuery(e.target.value);
+    const value = e.target.value;
+    setSearchValue(value);
+    setSearchQuery(value);
+  }, [setSearchQuery]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchValue('');
+    setSearchQuery('');
   }, [setSearchQuery]);
 
   const handleFilter = useCallback((category) => {
@@ -79,10 +97,6 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
       toggleMobileSidebar();
     }
   }, [fetchSharedNotes, navigate, isMobile, toggleMobileSidebar]);
-
-  const toggleSidebar = useCallback(() => {
-    setIsCollapsed(!isCollapsed);
-  }, [isCollapsed]);
 
   const handleKeyDown = useCallback((e, action) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -102,6 +116,10 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
     logout();
     navigate('/login');
   }, [logout, navigate]);
+
+  const handleThemeToggle = useCallback(() => {
+    toggleTheme();
+  }, [toggleTheme]);
 
   return (
     <>
@@ -125,8 +143,8 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
           {!isCollapsed && (
             <button 
               className="new-note-btn" 
-              onClick={handleNewNote}
-              onKeyDown={(e) => handleKeyDown(e, handleNewNote)}
+              onClick={handleNewNoteClick}
+              onKeyDown={(e) => handleKeyDown(e, handleNewNoteClick)}
               aria-label="Create new note"
             >
               <i className="fa-solid fa-plus" aria-hidden="true"></i>
@@ -136,8 +154,8 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
           {isCollapsed && (
             <button 
               className="new-note-btn collapsed" 
-              onClick={handleNewNote}
-              onKeyDown={(e) => handleKeyDown(e, handleNewNote)}
+              onClick={handleNewNoteClick}
+              onKeyDown={(e) => handleKeyDown(e, handleNewNoteClick)}
               aria-label="Create new note"
               title="New Note"
             >
@@ -167,9 +185,19 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
               <input 
                 type="text" 
                 placeholder="Search notes..." 
+                value={searchValue}
                 onChange={handleSearch}
                 aria-label="Search notes"
               />
+              {searchValue && (
+                <button 
+                  className="clear-search-btn"
+                  onClick={handleClearSearch}
+                  aria-label="Clear search"
+                >
+                  <i className="fa-solid fa-times" aria-hidden="true"></i>
+                </button>
+              )}
             </div>
           ) : (
             <div 
@@ -203,6 +231,9 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
               >
                 <i className={category.icon} aria-hidden="true"></i>
                 {!isCollapsed && <span>{category.name}</span>}
+                {isCollapsed && currentFilter === category.id && (
+                  <span className="active-indicator"></span>
+                )}
               </div>
             ))}
             <div 
@@ -216,6 +247,9 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
             >
               <i className="fa-solid fa-share-nodes" aria-hidden="true"></i>
               {!isCollapsed && <span>Shared with me</span>}
+              {isCollapsed && currentFilter === 'shared' && (
+                <span className="active-indicator"></span>
+              )}
             </div>
           </div>
         </div>
@@ -230,23 +264,29 @@ const Sidebar = ({ isMobileOpen, toggleMobileSidebar }) => {
             aria-label="Go to profile"
           >
             <img 
-              src={getAvatarUrl()} 
-              alt={`${user?.username} avatar`}
+              src={getAvatarUrl() || '/default-avatar.png'} 
+              alt={`${user?.username || 'User'} avatar`}
               onError={(e) => {
-                e.target.src = ''; 
+                e.target.src = '/default-avatar.png';
                 e.target.onerror = null;
               }}
             />
-            {!isCollapsed && <span>{user?.username}</span>}
+            {!isCollapsed && (
+              <div className="user-info">
+                <span className="username">{user?.username || 'User'}</span>
+                <span className="email">{user?.email}</span>
+              </div>
+            )}
           </div>
-          <div className="theme-toggle">
-            <button 
-              title={isCollapsed ? "Toggle theme" : ''}
-              aria-label="Toggle dark mode"
-            >
-              <i className="fa-solid fa-moon" id="theme-icon" aria-hidden="true"></i>
-              {!isCollapsed && <span>Dark Mode</span>}
-            </button>
+          <div 
+            className="theme-toggle"
+            onClick={handleThemeToggle}
+            onKeyDown={(e) => handleKeyDown(e, handleThemeToggle)}
+            role="button"
+            tabIndex={0}
+          >
+            <i className="fa-solid fa-moon" id="theme-icon" aria-hidden="true"></i>
+            {!isCollapsed && <span>Toggle Theme</span>}
           </div>
           <button 
             className="logout-btn" 

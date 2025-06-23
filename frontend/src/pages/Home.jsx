@@ -20,6 +20,7 @@ const Home = () => {
   const [showEditor, setShowEditor] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [expandedNoteId, setExpandedNoteId] = useState(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   const handleEditNote = (note) => {
     setEditingNote(note);
@@ -40,9 +41,16 @@ const Home = () => {
     setExpandedNoteId(noteId === expandedNoteId ? null : noteId);
   };
 
+  const handleSidebarToggle = (collapsed) => {
+    setIsSidebarCollapsed(collapsed);
+  };
+
   return (
-    <div className="app-container">
-      <Sidebar onNewNote={handleNewNote} />
+    <div className={`app-container ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <Sidebar 
+        onNewNote={handleNewNote} 
+        onToggle={handleSidebarToggle}
+      />
       
       <main className="main-content">
         <div className="main-header">
