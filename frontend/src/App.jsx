@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { NotesProvider } from './context/NotesContext';
+import { AuthProvider, AuthContext } from './context/AuthContext';
+import { NotesProvider, NotesContext } from './context/NotesContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -11,34 +11,34 @@ import Loader from './components/Loader';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles.css';
 
+function AppContent() {
+  const { loading: authLoading } = useContext(AuthContext);
+  const { loading: notesLoading } = useContext(NotesContext);
+  
+  return (
+    <>
+      {authLoading || notesLoading ? (
+        <Loader />
+      ) : (
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/shared" element={<SharedNotes />} />
+          </Route>
+        </Routes>
+      )}
+    </>
+  );
+}
+
 function App() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate loading time (replace with your actual loading logic)
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
-    return <Loader />;
-  }
-
   return (
     <Router>
       <AuthProvider>
         <NotesProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route element={<PrivateRoute />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/shared" element={<SharedNotes />} />
-            </Route>
-          </Routes>
+          <AppContent />
         </NotesProvider>
       </AuthProvider>
     </Router>

@@ -8,6 +8,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const navigate = useNavigate();
 
   // Check auth status on mount
@@ -20,38 +21,67 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       } finally {
         setLoading(false);
+        setAuthChecked(true);
       }
     };
     checkAuth();
   }, []);
 
   const login = async (credentials) => {
-    const userData = await loginUser(credentials);
-    setUser(userData);
-    navigate('/');
+    setLoading(true);
+    try {
+      const userData = await loginUser(credentials);
+      setUser(userData);
+      navigate('/');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (credentials) => {
-    const userData = await registerUser(credentials);
-    setUser(userData);
-    navigate('/');
+    setLoading(true);
+    try {
+      const userData = await registerUser(credentials);
+      setUser(userData);
+      navigate('/');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    await logoutUser();
-    setUser(null);
-    navigate('/login');
+    setLoading(true);
+    try {
+      await logoutUser();
+      setUser(null);
+      navigate('/login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateProfile = async (profileData) => {
-    const updatedUser = await apiUpdateProfile(profileData);
-    setUser(updatedUser);
-    return updatedUser;
+    setLoading(true);
+    try {
+      const updatedUser = await apiUpdateProfile(profileData);
+      setUser(updatedUser);
+      return updatedUser;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
-      {!loading && children}
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      authChecked,
+      login, 
+      register, 
+      logout, 
+      updateProfile 
+    }}>
+      {children}
     </AuthContext.Provider>
   );
 };

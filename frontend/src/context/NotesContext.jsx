@@ -1,4 +1,3 @@
-// NotesContext.jsx
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { getNotes, createNote, updateNote, deleteNote, shareNote, getSharedNotes } from '../services/api';
 import { AuthContext } from './AuthContext';
@@ -12,25 +11,29 @@ export const NotesProvider = ({ children }) => {
   const [currentView, setCurrentView] = useState('grid');
   const [currentSort, setCurrentSort] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Changed initial state to true
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [error, setError] = useState(null);
-  const { user } = useContext(AuthContext);
+  const { user, authChecked } = useContext(AuthContext);
 
   const fetchNotes = useCallback(async () => {
-    if (!user) return;
+    if (!user || !authChecked) return;
     setIsLoading(true);
     setError(null);
     try {
       const data = await getNotes(currentFilter, searchQuery);
       setNotes(data);
-    
+    } catch (err) {
+      console.error('Error fetching notes:', err);
+      setError(err.message || 'Failed to load notes');
     } finally {
       setIsLoading(false);
+      setInitialLoadComplete(true);
     }
-  }, [user, currentFilter, searchQuery]);
+  }, [user, authChecked, currentFilter, searchQuery]);
 
   const fetchSharedNotes = useCallback(async () => {
-    if (!user) return;
+    if (!user || !authChecked) return;
     setIsLoading(true);
     setError(null);
     try {
@@ -42,7 +45,7 @@ export const NotesProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, authChecked]);
 
   useEffect(() => {
     fetchNotes();
@@ -99,11 +102,14 @@ export const NotesProvider = ({ children }) => {
   };
 
   const toggleFavorite = async (id, isFavorite) => {
+    setIsLoading(true);
     try {
       await editNote(id, { favorite: !isFavorite });
     } catch (err) {
       console.error('Error toggling favorite:', err);
       throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -130,6 +136,7 @@ export const NotesProvider = ({ children }) => {
       currentSort,
       searchQuery,
       isLoading,
+      initialLoadComplete,
       error,
       setCurrentFilter,
       setCurrentView,
@@ -147,3 +154,5 @@ export const NotesProvider = ({ children }) => {
     </NotesContext.Provider>
   );
 };
+
+export const useNotes = () => useContext(NotesContext);
