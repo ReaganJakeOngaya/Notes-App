@@ -132,6 +132,12 @@ def create_app(config_class=Config):
             'message': str(e)
         })
         return response, 500
+    
+    @app.teardown_request
+    def teardown_request(exception=None):
+        if exception:
+            db.session.rollback()
+        db.session.remove()
 
     # Register Blueprints
     from app.routes.auth import auth_bp

@@ -7,18 +7,23 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://localhost/noteflow.db')
 
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,          # Check connection health before using
-        'pool_recycle': 300,            # Recycle connections after 300 seconds
-        'pool_timeout': 30,             # Wait 30 seconds for a connection
-        'max_overflow': 20,             # Allow 20 overflow connections
-        'pool_size': 10,                # Maintain 10 connections in pool
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+        'pool_timeout': 30,
+        'max_overflow': 10,  
+        'pool_size': 5,      
         'connect_args': {
-            'connect_timeout': 10       # Wait 10 seconds for connection
+            'connect_timeout': 10,
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5
         }
     }
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # OAuth configuration

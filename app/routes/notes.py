@@ -1,3 +1,4 @@
+from pydoc import text
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from app.services.note_service import NoteService
@@ -159,3 +160,25 @@ def get_shared_notes():
     except Exception as e:
         logger.error(f"Error getting shared notes: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
+    
+
+@notes_bp.before_request
+def before_request():
+    if request.method == 'OPTIONS':
+        return  # Skip authentication for OPTIONS requests
+    
+    try:
+        # Improved database connection check
+        db.session.execute(text('SELECT 1'))
+        
+    except Exception as e:
+        logger.error(f"Database connection error: {str(e)}")
+        db.session.rollback()
+        # Close and remove the session to force a new connection
+        db.session.remove()
+        return jsonify({'error': 'Database connection failed', 'detail': str(e)}), 500
+    
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    logger.info(f"Request from user {current_user.id} at {datetime.utcnow()}")

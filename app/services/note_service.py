@@ -4,10 +4,13 @@ from app import db
 import json
 from datetime import datetime
 import logging
+from sqlalchemy.exc import OperationalError
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 
 class NoteService:
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def get_user_notes(self, user_id, category='all', search=''):
         try:
             query = Note.query.filter_by(user_id=user_id)
@@ -28,7 +31,11 @@ class NoteService:
             # Order by modified date, most recent first
             notes = query.order_by(Note.modified_at.desc()).all()
             return jsonify([self._note_to_dict(note) for note in notes])
-        
+        except OperationalError as e:
+            db.session.rollback()
+            logger.error(f"Database operational error: {str(e)}")
+            raise
+            
         except Exception as e:
             logger.error(f"Error getting user notes: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to fetch notes'}), 500
