@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { NotesProvider, NotesContext } from './context/NotesContext';
@@ -12,12 +12,15 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles.css';
 
 function AppContent() {
-  const { loading: authLoading } = useContext(AuthContext);
-  const { loading: notesLoading } = useContext(NotesContext);
+  const { loading: authLoading, authChecked } = useContext(AuthContext);
+  const { isLoading: notesLoading, initialLoadComplete } = useContext(NotesContext);
   
+  // Show loader until both auth check and initial data loading are complete
+  const showLoader = !authChecked || !initialLoadComplete || authLoading || notesLoading;
+
   return (
     <>
-      {authLoading || notesLoading ? (
+      {showLoader ? (
         <Loader />
       ) : (
         <Routes>
