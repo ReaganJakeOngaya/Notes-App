@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from app.services.note_service import NoteService
 import logging
 from datetime import datetime
+from sqlalchemy import text
 from app import db
 
 notes_bp = Blueprint('notes', __name__)
@@ -24,7 +25,7 @@ def before_request():
     
     try:
         # Verify database connection
-        db.session.execute('SELECT 1')
+        db.session.execute(text('SELECT 1'))
     except Exception as e:
         logger.error(f"Database connection error: {str(e)}")
         db.session.rollback()
