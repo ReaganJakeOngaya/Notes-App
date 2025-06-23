@@ -14,6 +14,22 @@
     overflow: hidden;
 }
 
+.note-card.expanded {
+    grid-column: 1 / -1;
+    transform: none !important;
+    animation: none !important;
+    cursor: default;
+    margin-bottom: 2rem;
+}
+
+.note-card.expanded:hover {
+    transform: none;
+    box-shadow: 
+        0 16px 32px rgba(0, 0, 0, 0.12),
+        0 8px 16px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
 .note-card::before {
     content: '';
     position: absolute;
@@ -224,6 +240,11 @@
     position: relative;
 }
 
+.note-content.expanded {
+    max-height: none;
+    overflow: visible;
+}
+
 .note-content::after {
     content: '';
     position: absolute;
@@ -233,6 +254,10 @@
     height: 20px;
     background: linear-gradient(transparent, rgba(255, 255, 255, 0.9));
     pointer-events: none;
+}
+
+.note-content.expanded::after {
+    display: none;
 }
 
 [data-theme="dark"] .note-content::after {
@@ -613,6 +638,10 @@
 
 .note-card:hover {
     animation: pulse 2s ease-in-out infinite;
+}
+
+.note-card.expanded:hover {
+    animation: none;
 }
 
 /* Responsive adjustments */

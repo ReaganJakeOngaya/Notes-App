@@ -4,7 +4,7 @@ import { formatDate } from '../utils/dateUtils';
 import { getCategoryIcon } from '../utils/categoryUtils';
 import '../css/NoteCard.css';
 
-const NoteCard = ({ note, onEdit, onFavoriteToggle }) => {
+const NoteCard = ({ note, onEdit, onFavoriteToggle, isExpanded, onExpand }) => {
   const { removeNote, shareNoteWithUser } = useContext(NotesContext);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEmail, setShareEmail] = useState('');
@@ -44,7 +44,7 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle }) => {
   };
 
   return (
-    <div className="note-card">
+    <div className={`note-card ${isExpanded ? 'expanded' : ''}`}>
       <div className="note-header">
         <h3 className="note-title">{note.title || 'Untitled Note'}</h3>
         <div className="note-actions">
@@ -64,12 +64,23 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle }) => {
           <button className="action-btn danger" onClick={() => removeNote(note.id)} title="Delete">
             <i className="fa-solid fa-trash-can"></i>
           </button>
+          {!isExpanded && (
+            <button className="action-btn" onClick={() => onExpand(note.id)} title="View">
+              <i className="fa-solid fa-expand"></i>
+            </button>
+          )}
+          {isExpanded && (
+            <button className="action-btn" onClick={() => onExpand(null)} title="Collapse">
+              <i className="fa-solid fa-compress"></i>
+            </button>
+          )}
         </div>
       </div>
       
-      {note.content && (
-        <div className="note-content" dangerouslySetInnerHTML={{ __html: note.content }} />
-      )}
+      <div 
+        className={`note-content ${isExpanded ? 'expanded' : ''}`} 
+        dangerouslySetInnerHTML={{ __html: note.content }} 
+      />
       
       <div className="note-footer">
         <div className="note-meta">

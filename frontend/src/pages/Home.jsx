@@ -19,9 +19,8 @@ const Home = () => {
   
   const [showEditor, setShowEditor] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  const [expandedNoteId, setExpandedNoteId] = useState(null);
   
-
-
   const handleEditNote = (note) => {
     setEditingNote(note);
     setShowEditor(true);
@@ -35,6 +34,10 @@ const Home = () => {
   const handleCloseEditor = () => {
     setShowEditor(false);
     setEditingNote(null);
+  };
+
+  const handleExpandNote = (noteId) => {
+    setExpandedNoteId(noteId === expandedNoteId ? null : noteId);
   };
 
   return (
@@ -101,6 +104,8 @@ const Home = () => {
                   note={note}
                   onEdit={handleEditNote}
                   onFavoriteToggle={toggleFavorite}
+                  isExpanded={expandedNoteId === note.id}
+                  onExpand={handleExpandNote}
                 />
               ))}
             </div>
