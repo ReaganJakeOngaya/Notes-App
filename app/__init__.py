@@ -64,7 +64,7 @@ def create_app(config_class=Config):
             logger.error(f"Database health check failed: {str(e)}")
             return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
 
-    # CORS Configuration
+    # CORS Configuration - Simplified to avoid duplicate headers
     CORS(app, resources={
         r"/api/*": {
             "origins": ["https://notes-app-r4yj.vercel.app"],
@@ -84,7 +84,8 @@ def create_app(config_class=Config):
         },
         r"/static/*": {
             "origins": ["*"],
-            "methods": ["GET"]
+            "methods": ["GET", "HEAD", "OPTIONS"],
+            "supports_credentials": False
         }
     })
 
@@ -107,25 +108,16 @@ def create_app(config_class=Config):
     @app.before_request
     def log_request_info():
         logger.info(f"Incoming request: {request.method} {request.path}")
-        logger.debug('Headers: %s', request.headers)
-        if request.content_length and request.content_length < 1024:
-            logger.debug('Body: %s', request.get_data())
 
     @app.after_request
     def add_security_headers(response):
-        if request.method == 'OPTIONS':
-            response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
-            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
-            response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-            response.headers.add('Access-Control-Max-Age', '86400')
-        
+        # Removed duplicate CORS headers - let Flask-CORS handle them
         csp = (
             "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com;"
             "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-r4yj.vercel.app;"
             "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
             "style-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data: blob: 'unsafe-inline';"
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data: blob:;"
             "img-src 'self' data: https: blob:;"
             "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;"
             "frame-src 'self' https://accounts.google.com https://appleid.apple.com"
@@ -155,3 +147,29 @@ def create_app(config_class=Config):
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
+
+    # # CORS Configuration
+    # CORS(app, resources={
+    #     r"/api/*": {
+    #         "origins": ["https://notes-app-r4yj.vercel.app"],
+    #         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    #         "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+    #         "expose_headers": ["Content-Type", "Set-Cookie"],
+    #         "supports_credentials": True,
+    #         "max_age": 86400
+    #     },
+    #     r"/auth/*": {
+    #         "origins": ["https://notes-app-r4yj.vercel.app"],
+    #         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    #         "allow_headers": ["Content-Type", "Authorization"],
+    #         "expose_headers": ["Content-Type", "Set-Cookie"],
+    #         "supports_credentials": True,
+    #         "max_age": 86400
+    #     },
+    #     r"/static/*": {
+    #         "origins": ["*"],
+    #         "methods": ["GET"]
+    #     }
+    # })
+
+   

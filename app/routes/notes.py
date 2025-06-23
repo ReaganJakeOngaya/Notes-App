@@ -16,35 +16,30 @@ logger = logging.getLogger(__name__)
 def home():
     return "Welcome to the Notes API", 200
 
-@notes_bp.route('/', methods=['OPTIONS'])
-@notes_bp.route('', methods=['OPTIONS'])
-def handle_options():
-    response = jsonify({})
-    response.headers.add('Access-Control-Allow-Origin', 'https://notes-app-r4yj.vercel.app')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response, 200
-
 @notes_bp.before_request
 def before_request():
-    if request.method != 'OPTIONS':
-        try:
-            # Verify database connection
-            db.session.execute('SELECT 1')
-        except Exception as e:
-            logger.error(f"Database connection error: {str(e)}")
-            db.session.rollback()
-            return jsonify({'error': 'Database connection failed'}), 500
-        
-        if not current_user.is_authenticated:
-            return jsonify({'error': 'Unauthorized'}), 401
-        
-        logger.info(f"Request from user {current_user.id} at {datetime.utcnow()}")
-    return None
+    if request.method == 'OPTIONS':
+        return  # Skip authentication for OPTIONS requests
+    
+    try:
+        # Verify database connection
+        db.session.execute('SELECT 1')
+    except Exception as e:
+        logger.error(f"Database connection error: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'Database connection failed'}), 500
+    
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    logger.info(f"Request from user {current_user.id} at {datetime.utcnow()}")
 
-@notes_bp.route('', methods=['GET'])
+@notes_bp.route('', methods=['GET', 'OPTIONS'])
+@login_required
 def get_notes():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         logger.info(f"Getting notes for user {current_user.id} at {datetime.utcnow()}")
         category = request.args.get('category', 'all')
@@ -59,8 +54,12 @@ def get_notes():
         logger.error(f"Error getting notes: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
-@notes_bp.route('/<int:note_id>', methods=['GET'])
+@notes_bp.route('/<int:note_id>', methods=['GET', 'OPTIONS'])
+@login_required
 def get_note(note_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         logger.info(f"Getting note {note_id} for user {current_user.id}")
         note = note_service.get_single_note(current_user.id, note_id)
@@ -71,8 +70,12 @@ def get_note(note_id):
         logger.error(f"Error getting note: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
-@notes_bp.route('', methods=['POST'])
+@notes_bp.route('', methods=['POST', 'OPTIONS'])
+@login_required
 def create_note():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         data = request.get_json()
         logger.info(f"Creating note for user {current_user.id}")
@@ -86,8 +89,12 @@ def create_note():
         logger.error(f"Error creating note: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
-@notes_bp.route('/<int:note_id>', methods=['PUT'])
+@notes_bp.route('/<int:note_id>', methods=['PUT', 'OPTIONS'])
+@login_required
 def update_note(note_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         data = request.get_json()
         logger.info(f"Updating note {note_id} for user {current_user.id}")
@@ -101,8 +108,12 @@ def update_note(note_id):
         logger.error(f"Error updating note: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
-@notes_bp.route('/<int:note_id>', methods=['DELETE'])
+@notes_bp.route('/<int:note_id>', methods=['DELETE', 'OPTIONS'])
+@login_required
 def delete_note(note_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         logger.info(f"Deleting note {note_id} for user {current_user.id}")
         result = note_service.delete_note(current_user.id, note_id)
@@ -111,8 +122,12 @@ def delete_note(note_id):
         logger.error(f"Error deleting note: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
-@notes_bp.route('/<int:note_id>/share', methods=['POST'])
+@notes_bp.route('/<int:note_id>/share', methods=['POST', 'OPTIONS'])
+@login_required
 def share_note(note_id):
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         data = request.get_json()
         logger.info(f"Sharing note {note_id} for user {current_user.id}")
@@ -131,8 +146,12 @@ def share_note(note_id):
         logger.error(f"Error sharing note: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
-@notes_bp.route('/shared', methods=['GET'])
+@notes_bp.route('/shared', methods=['GET', 'OPTIONS'])
+@login_required
 def get_shared_notes():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         logger.info(f"Getting shared notes for user {current_user.id}")
         notes = note_service.get_shared_notes(current_user.id)
