@@ -1,15 +1,14 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotesProvider } from './context/NotesContext';
 import PrivateRoute from './components/PrivateRoute';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Profile from './pages/Profile';
+import LandingPage from './pages/LandingPage';
 import './styles.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
-const Home = lazy(() => import('./pages/Home'));
-const Login = lazy(() => import('./pages/Login'));
-const Profile = lazy(() => import('./pages/Profile'));
-const LandingPage = lazy(() => import('./pages/LandingPage'));
 
 function App() {
   return (
@@ -17,14 +16,20 @@ function App() {
       <AuthProvider>
         <NotesProvider>
           <div className="app">
-            <Suspense fallback={<div className="app-loader">Loading app...</div>}>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
-                <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-              </Routes>
-            </Suspense>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/home" element={
+                <PrivateRoute>
+                  <Home />
+                </PrivateRoute>
+              } />
+              <Route path="/profile" element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } />
+            </Routes>
           </div>
         </NotesProvider>
       </AuthProvider>
