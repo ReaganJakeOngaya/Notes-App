@@ -1,42 +1,27 @@
-import React, { useContext } from 'react';
+
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider, AuthContext } from './context/AuthContext';
-import { NotesProvider, NotesContext } from './context/NotesContext';
+import { AuthProvider } from './context/AuthContext';
+import { NotesProvider } from './context/NotesContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
-import SharedNotes from './components/SharedNotes';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles.css';
-
-function AppContent() {
-  const { authChecked } = useContext(AuthContext);
-  const { initialLoadComplete } = useContext(NotesContext);
-  
-  // Only render routes when both auth check and initial data loading are complete
-  if (!authChecked || !initialLoadComplete) {
-    return null;
-  }
-
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route element={<PrivateRoute />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/shared" element={<SharedNotes />} />
-      </Route>
-    </Routes>
-  );
-}
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <NotesProvider>
-          <AppContent />
+          <div className="app">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            </Routes>
+          </div>
         </NotesProvider>
       </AuthProvider>
     </Router>
