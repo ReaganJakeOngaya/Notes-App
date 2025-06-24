@@ -1,4 +1,3 @@
-// Home.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import NoteCard from '../components/NoteCard';
@@ -62,7 +61,6 @@ const Home = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Mobile Header */}
       {isMobile && (
         <div className="mobile-header">
           <button 
