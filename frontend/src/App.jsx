@@ -7,32 +7,27 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import SharedNotes from './components/SharedNotes';
-import Loader from './components/Loader';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles.css';
 
 function AppContent() {
-  const { loading: authLoading, authChecked } = useContext(AuthContext);
-  const { isLoading: notesLoading, initialLoadComplete } = useContext(NotesContext);
+  const { authChecked } = useContext(AuthContext);
+  const { initialLoadComplete } = useContext(NotesContext);
   
-  // Show loader until both auth check and initial data loading are complete
-  const showLoader = !authChecked || !initialLoadComplete || authLoading || notesLoading;
+  // Only render routes when both auth check and initial data loading are complete
+  if (!authChecked || !initialLoadComplete) {
+    return null;
+  }
 
   return (
-    <>
-      {showLoader ? (
-        <Loader />
-      ) : (
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/shared" element={<SharedNotes />} />
-          </Route>
-        </Routes>
-      )}
-    </>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route element={<PrivateRoute />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/shared" element={<SharedNotes />} />
+      </Route>
+    </Routes>
   );
 }
 

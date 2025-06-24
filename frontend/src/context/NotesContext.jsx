@@ -11,7 +11,7 @@ export const NotesProvider = ({ children }) => {
   const [currentView, setCurrentView] = useState('grid');
   const [currentSort, setCurrentSort] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true); // Changed initial state to true
+  const [isLoading, setIsLoading] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [error, setError] = useState(null);
   const { user, authChecked } = useContext(AuthContext);

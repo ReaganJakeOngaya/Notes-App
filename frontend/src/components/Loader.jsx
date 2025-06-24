@@ -10,7 +10,7 @@ const Loader = () => {
         <div className="loader-circle"></div>
         <div className="loader-circle"></div>
       </div>
-      <div className="loader-text">Loading your plaese, wait...</div>
+      <div className="loader-text">Loading your please, wait...</div>
     </div>
   );
 };
