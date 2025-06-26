@@ -27,6 +27,10 @@
   padding: 0;
 }
 
+.app {
+  min-height: 100vh;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-secondary);
