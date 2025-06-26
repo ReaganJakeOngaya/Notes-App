@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotesProvider } from './context/NotesContext';
-import PrivateRoute from './components/PrivateRoute';
+// import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import NotFound from './pages/NotFound';
@@ -29,19 +29,19 @@ function App() {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/home" element={
-                    <PrivateRoute>
+                    // <PrivateRoute>
                       <Home />
-                    </PrivateRoute>
+                    // {/* </PrivateRoute> */}
                   } />
                   <Route path="/profile" element={
-                    <PrivateRoute allowedRoles={['user', 'admin']}>
+                    // <PrivateRoute allowedRoles={['user', 'admin']}>
                       <Profile />
-                    </PrivateRoute>
+                    // </PrivateRoute>
                   } />
                   <Route path="/shared" element={
-                    <PrivateRoute>
+                    // <PrivateRoute>
                       <SharedNotes />
-                    </PrivateRoute>
+                    // </PrivateRoute>
                   } />
                   <Route path="/unauthorized" element={<Unauthorized />} />
                   <Route path="*" element={<NotFound />} />
