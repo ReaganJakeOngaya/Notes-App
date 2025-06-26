@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import PropTypes from 'prop-types';
-import '../css/styles.css';
+import '../styles.css';
 
 const PrivateRoute = ({ allowedRoles = [] }) => {
   const { user, authChecked, authError, checkAuth } = useContext(AuthContext);
