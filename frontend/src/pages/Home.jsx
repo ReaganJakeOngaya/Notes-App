@@ -67,6 +67,7 @@ const Home = () => {
             className="sidebar-toggle"
             onClick={toggleSidebar}
             aria-label="Toggle sidebar"
+            aria-expanded={isSidebarOpen}
           >
             <i className="fa-solid fa-bars"></i>
           </button>
@@ -75,6 +76,7 @@ const Home = () => {
              currentFilter === 'favorites' ? 'Favorites' : 
              `${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)} Notes`}
           </h1>
+          <div style={{ width: '40px' }} aria-hidden="true"></div>
         </div>
       )}
 
@@ -86,7 +88,7 @@ const Home = () => {
           onNewNote={handleNewNote}
         />
         
-        <main className="dashboard-main">
+        <main className={`dashboard-main ${!isSidebarOpen && isMobile ? 'collapsed' : ''}`}>
           {!isMobile && (
             <div className="dashboard-header">
               <div className="header-left">
@@ -95,7 +97,7 @@ const Home = () => {
                    currentFilter === 'favorites' ? 'Favorites' : 
                    `${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)} Notes`}
                 </h1>
-                <span className="notes-count">{notes.length} notes</span>
+                <span className="notes-count">{notes.length} {notes.length === 1 ? 'note' : 'notes'}</span>
               </div>
               <div className="header-actions">
                 <div className="view-toggle">
@@ -103,6 +105,7 @@ const Home = () => {
                     className={`view-btn ${currentView === 'grid' ? 'active' : ''}`}
                     onClick={() => setCurrentView('grid')}
                     aria-label="Grid view"
+                    aria-pressed={currentView === 'grid'}
                   >
                     <i className="fa-solid fa-grid"></i>
                     <span>Grid</span>
@@ -111,6 +114,7 @@ const Home = () => {
                     className={`view-btn ${currentView === 'list' ? 'active' : ''}`}
                     onClick={() => setCurrentView('list')}
                     aria-label="List view"
+                    aria-pressed={currentView === 'list'}
                   >
                     <i className="fa-solid fa-list"></i>
                     <span>List</span>

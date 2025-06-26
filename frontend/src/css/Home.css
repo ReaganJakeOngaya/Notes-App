@@ -1,109 +1,4 @@
 /* Home.css */
-:root {
-  --sidebar-width: 280px;
-  --sidebar-collapsed-width: 80px;
-  --header-height: 80px;
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --text-primary: #1a202c;
-  --text-secondary: #4a5568;
-  --text-muted: #718096;
-  --bg-primary: #ffffff;
-  --bg-secondary: #f7fafc;
-  --border-color: rgba(0, 0, 0, 0.06);
-}
-
-[data-theme="dark"] {
-  --text-primary: #f7fafc;
-  --text-secondary: #cbd5e0;
-  --text-muted: #a0aec0;
-  --bg-primary: #1a202c;
-  --bg-secondary: #2d3748;
-  --border-color: rgba(255, 255, 255, 0.08);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-.app {
-  min-height: 100vh;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.dashboard-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  position: relative;
-  background: var(--bg-secondary);
-}
-
-.dashboard-layout {
-  display: flex;
-  flex: 1;
-  position: relative;
-}
-
-.dashboard-main {
-  flex: 1;
-  padding: 1.5rem;
-  margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s ease;
-  min-height: calc(100vh - var(--header-height));
-}
-
-.mobile-header {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  background: var(--bg-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  z-index: 90;
-  position: sticky;
-  top: 0;
-}
-
-.mobile-header h1 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-left: 1rem;
-  color: var(--text-primary);
-}
-
-.sidebar-toggle {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.sidebar-toggle:hover {
-  background: rgba(102, 126, 234, 0.1);
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background: var(--bg-primary);
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
 .header-left h1 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -166,10 +61,6 @@ body {
   font-weight: 600;
 }
 
-.view-btn i {
-  font-size: 0.875rem;
-}
-
 .sort-dropdown {
   position: relative;
 }
@@ -185,11 +76,6 @@ body {
   font-weight: 500;
   cursor: pointer;
   appearance: none;
-  transition: all 0.3s ease;
-}
-
-[data-theme="dark"] .sort-dropdown select {
-  background: rgba(31, 41, 55, 0.8);
 }
 
 .sort-dropdown::after {
@@ -202,7 +88,6 @@ body {
   transform: translateY(-50%);
   pointer-events: none;
   color: var(--text-muted);
-  font-size: 0.75rem;
 }
 
 .notes-container {
@@ -237,26 +122,10 @@ body {
   max-width: 500px;
 }
 
-[data-theme="dark"] .empty-state {
-  background: rgba(31, 41, 55, 0.8);
-}
-
 .empty-icon {
   font-size: 3rem;
   margin-bottom: 1.5rem;
-  color: #667eea;
-}
-
-.empty-state h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
-  color: var(--text-primary);
-}
-
-.empty-state p {
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
-  max-width: 320px;
+  color: var(--primary-color);
 }
 
 .btn {
@@ -281,58 +150,4 @@ body {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
-}
-
-/* Responsive Styles */
-@media (max-width: 1024px) {
-  .dashboard-main {
-    margin-left: var(--sidebar-collapsed-width);
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  .header-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .notes-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .empty-state {
-    padding: 2rem 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .header-actions {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
-  }
-
-  .view-toggle {
-    width: 100%;
-  }
-
-  .sort-dropdown {
-    width: 100%;
-  }
-
-  .sort-dropdown select {
-    width: 100%;
-  }
 }
