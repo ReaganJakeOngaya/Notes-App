@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { NotesContext } from '../context/NotesContext';
 import '../css/NoteEditor.css';
 
-const NoteEditor = ({ note, onSave, onCancel }) => {
+const NoteEditor = ({ note, onSave, onCancel, inline = false }) => {
   const [title, setTitle] = useState(note?.title || '');
   const [content, setContent] = useState(note?.content || '');
   const [category, setCategory] = useState(note?.category || 'personal');
@@ -70,113 +70,116 @@ const NoteEditor = ({ note, onSave, onCancel }) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  // Rich text editor commands
   const execCommand = (cmd, value = null) => {
     document.execCommand(cmd, false, value);
     editorRef.current.focus();
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal fullscreen-editor">
-        <div className="modal-header">
+    <div className={`editor-container ${inline ? 'inline-editor' : 'modal-editor'}`}>
+      {!inline && (
+        <div className="editor-header">
           <h2>{note ? 'Edit Note' : 'Create New Note'}</h2>
           <button className="close-btn" onClick={onCancel}>
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div className="modal-body">
-          {error && <div className="error-message">{error}</div>}
-          <div className="form-group">
+      )}
+      
+      <div className="editor-body">
+        {error && <div className="error-message">{error}</div>}
+        <div className="form-group">
+          <input 
+            type="text" 
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Note title..." 
+            maxLength="100"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <select 
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="personal">Personal</option>
+            <option value="work">Work</option>
+            <option value="ideas">Ideas</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <div className="editor-toolbar">
+            <button type="button" title="Bold" onClick={() => execCommand('bold')}>
+              <i className="fa-solid fa-bold"></i>
+            </button>
+            <button type="button" title="Italic" onClick={() => execCommand('italic')}>
+              <i className="fa-solid fa-italic"></i>
+            </button>
+            <button type="button" title="Underline" onClick={() => execCommand('underline')}>
+              <i className="fa-solid fa-underline"></i>
+            </button>
+            <div className="divider"></div>
+            <button type="button" title="Bullet List" onClick={() => execCommand('insertUnorderedList')}>
+              <i className="fa-solid fa-list-ul"></i>
+            </button>
+            <button type="button" title="Numbered List" onClick={() => execCommand('insertOrderedList')}>
+              <i className="fa-solid fa-list-ol"></i>
+            </button>
+          </div>
+          <div 
+            ref={editorRef}
+            className="editor" 
+            contentEditable="true"
+            onInput={handleEditorChange}
+            onBlur={handleEditorChange}
+            placeholder="Start writing your note..."
+            suppressContentEditableWarning={true}
+          ></div>
+        </div>
+        <div className="form-group">
+          <div className="tag-input">
+            <div className="tags">
+              {tags.map(tag => (
+                <span key={tag} className="tag">
+                  {tag}
+                  <button onClick={() => removeTag(tag)}>&times;</button>
+                </span>
+              ))}
+            </div>
             <input 
               type="text" 
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Note title..." 
-              maxLength="100"
-              required
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              placeholder="Add tags (press Enter to add)"
             />
           </div>
-          <div className="form-group">
-            <select 
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="personal">Personal</option>
-              <option value="work">Work</option>
-              <option value="ideas">Ideas</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <div className="editor-toolbar">
-              <button type="button" title="Bold" onClick={() => execCommand('bold')}>
-                <i className="fa-solid fa-bold"></i>
-              </button>
-              <button type="button" title="Italic" onClick={() => execCommand('italic')}>
-                <i className="fa-solid fa-italic"></i>
-              </button>
-              <button type="button" title="Underline" onClick={() => execCommand('underline')}>
-                <i className="fa-solid fa-underline"></i>
-              </button>
-              <div className="divider"></div>
-              <button type="button" title="Bullet List" onClick={() => execCommand('insertUnorderedList')}>
-                <i className="fa-solid fa-list-ul"></i>
-              </button>
-              <button type="button" title="Numbered List" onClick={() => execCommand('insertOrderedList')}>
-                <i className="fa-solid fa-list-ol"></i>
-              </button>
-            </div>
-            <div 
-              ref={editorRef}
-              className="editor" 
-              contentEditable="true"
-              onInput={handleEditorChange}
-              onBlur={handleEditorChange}
-              placeholder="Start writing your note..."
-              suppressContentEditableWarning={true}
-            ></div>
-          </div>
-          <div className="form-group">
-            <div className="tag-input">
-              <div className="tags">
-                {tags.map(tag => (
-                  <span key={tag} className="tag">
-                    {tag}
-                    <button onClick={() => removeTag(tag)}>&times;</button>
-                  </span>
-                ))}
-              </div>
-              <input 
-                type="text" 
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagKeyDown}
-                placeholder="Add tags (press Enter to add)"
-              />
-            </div>
-          </div>
         </div>
-        <div className="modal-footer">
+      </div>
+      
+      <div className="editor-footer">
+        {!inline && (
           <button className="btn btn-secondary" onClick={onCancel} disabled={isSaving}>
             Cancel
           </button>
-          <button 
-            className="btn btn-primary" 
-            onClick={handleSave}
-            disabled={isSaving || !title.trim()}
-          >
-            {isSaving ? (
-              <>
-                <i className="fa-solid fa-spinner fa-spin"></i> Saving...
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-floppy-disk"></i>
-                {note ? 'Update Note' : 'Save Note'}
-              </>
-            )}
-          </button>
-        </div>
+        )}
+        <button 
+          className="btn btn-primary" 
+          onClick={handleSave}
+          disabled={isSaving || !title.trim()}
+        >
+          {isSaving ? (
+            <>
+              <i className="fa-solid fa-spinner fa-spin"></i> Saving...
+            </>
+          ) : (
+            <>
+              <i className="fa-solid fa-floppy-disk"></i>
+              {note ? 'Update Note' : 'Save Note'}
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

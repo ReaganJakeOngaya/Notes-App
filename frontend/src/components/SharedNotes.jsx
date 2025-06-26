@@ -17,21 +17,24 @@ const getCategoryIcon = (category) => {
 };
 
 const SharedNotes = () => {
-  const { sharedNotes } = useContext(NotesContext);
+  const { sharedNotes, markNoteAsRead } = useContext(NotesContext);
   const navigate = useNavigate();
 
   const handleBackToHome = () => {
-    navigate('/');
+    navigate('/home');
+  };
+
+  const handleNoteClick = (noteId) => {
+    markNoteAsRead(noteId);
   };
 
   return (
     <div className="shared-notes-container">
-      {/* Enhanced Header with Back Button */}
       <div className="main-header">
         <div className="header-content">
           <button className="back-btn" onClick={handleBackToHome}>
             <i className="fas fa-arrow-left"></i>
-            <span>Back to Home</span>
+            <span>Back to Notes</span>
           </button>
           
           <div className="header-info">
@@ -46,11 +49,9 @@ const SharedNotes = () => {
           </div>
         </div>
         
-        {/* Decorative gradient line */}
         <div className="header-gradient"></div>
       </div>
 
-      {/* Content Area */}
       <div className="content-area">
         {sharedNotes.length === 0 ? (
           <div className="empty-state">
@@ -77,7 +78,13 @@ const SharedNotes = () => {
         ) : (
           <div className="notes-grid">
             {sharedNotes.map(note => (
-              <div key={note.id} className="shared-note-card">
+              <div 
+                key={note.id} 
+                className={`shared-note-card ${!note.read ? 'unread' : ''}`}
+                onClick={() => handleNoteClick(note.id)}
+              >
+                {!note.read && <div className="unread-indicator"></div>}
+                
                 <div className="shared-indicator">
                   <i className="fas fa-share-alt"></i>
                 </div>
@@ -104,7 +111,6 @@ const SharedNotes = () => {
                   </div>
                 </div>
                 
-                {/* Hover effect overlay */}
                 <div className="card-hover-overlay"></div>
               </div>
             ))}

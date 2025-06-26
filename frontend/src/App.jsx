@@ -15,6 +15,7 @@ const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const SharedNotes = lazy(() => import('./pages/SharedNotes'));
 
 function App() {
   return (
@@ -35,6 +36,11 @@ function App() {
                   <Route path="/profile" element={
                     <PrivateRoute allowedRoles={['user', 'admin']}>
                       <Profile />
+                    </PrivateRoute>
+                  } />
+                  <Route path="/shared" element={
+                    <PrivateRoute>
+                      <SharedNotes />
                     </PrivateRoute>
                   } />
                   <Route path="/unauthorized" element={<Unauthorized />} />

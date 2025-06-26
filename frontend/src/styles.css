@@ -1,8 +1,8 @@
-/* styles.css */
+/* Modern 2025 Design System */
 :root {
-  --primary-color: #667eea;
-  --primary-hover: #5a67d8;
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --primary-color: #6d5dfc;
+  --primary-hover: #5b4bdf;
+  --primary-gradient: linear-gradient(135deg, #6d5dfc 0%, #8b6ff7 100%);
   --secondary-color: #64748b;
   --success-color: #10b981;
   --danger-color: #ef4444;
@@ -18,14 +18,16 @@
   --header-height: 60px;
   
   --bg-primary: #ffffff;
-  --bg-secondary: #f7fafc;
+  --bg-secondary: #f8fafc;
   --bg-tertiary: #f1f5f9;
-  --text-primary: #1a202c;
-  --text-secondary: #4a5568;
-  --text-muted: #718096;
-  --border-color: rgba(0, 0, 0, 0.06);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --notification-dot: #ef4444;
 }
 
 [data-theme="dark"] {
@@ -33,15 +35,17 @@
   --category-personal: #047857;
   --category-ideas: #92400e;
   --category-favorites: #b45309;
-  --bg-primary: #1a202c;
-  --bg-secondary: #2d3748;
-  --bg-tertiary: #4a5568;
-  --text-primary: #f7fafc;
-  --text-secondary: #cbd5e0;
-  --text-muted: #a0aec0;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.25), 0 4px 6px -4px rgb(0 0 0 / 0.25);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.25);
+  --notification-dot: #f87171;
 }
 
 * {
@@ -55,6 +59,7 @@ body {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.5;
 }
 
 .app {
@@ -128,7 +133,7 @@ select:focus-visible,
 [tabindex="0"]:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 0 0 4px rgba(109, 93, 252, 0.3);
 }
 
 .sidebar-toggle {
@@ -143,7 +148,35 @@ select:focus-visible,
 }
 
 .sidebar-toggle:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(109, 93, 252, 0.1);
+}
+
+/* Notification Dot */
+.notification-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--notification-dot);
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
 }
 
 /* Responsive Styles */

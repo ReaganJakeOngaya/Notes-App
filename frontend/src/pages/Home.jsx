@@ -17,7 +17,6 @@ const Home = () => {
     toggleFavorite
   } = useContext(NotesContext);
   
-  const [showEditor, setShowEditor] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [expandedNoteId, setExpandedNoteId] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -36,18 +35,20 @@ const Home = () => {
 
   const handleEditNote = (note) => {
     setEditingNote(note);
-    setShowEditor(true);
     if (isMobile) setIsSidebarOpen(false);
   };
 
   const handleNewNote = () => {
-    setEditingNote(null);
-    setShowEditor(true);
+    setEditingNote({
+      title: '',
+      content: '',
+      category: 'personal',
+      tags: []
+    });
     if (isMobile) setIsSidebarOpen(false);
   };
 
   const handleCloseEditor = () => {
-    setShowEditor(false);
     setEditingNote(null);
   };
 
@@ -137,7 +138,14 @@ const Home = () => {
           )}
 
           <div className="notes-container">
-            {notes.length === 0 ? (
+            {editingNote ? (
+              <NoteEditor 
+                note={editingNote}
+                onSave={handleCloseEditor}
+                onCancel={handleCloseEditor}
+                inline={true}
+              />
+            ) : notes.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">
                   <i className="fa-solid fa-note-sticky"></i>
@@ -170,14 +178,6 @@ const Home = () => {
           </div>
         </main>
       </div>
-
-      {showEditor && (
-        <NoteEditor 
-          note={editingNote}
-          onSave={handleCloseEditor}
-          onCancel={handleCloseEditor}
-        />
-      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { NotesContext } from '../context/NotesContext';
 import { AuthContext } from '../context/AuthContext';
@@ -11,12 +10,14 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote }) => {
     currentFilter, 
     setCurrentFilter, 
     setSearchQuery,
-    fetchSharedNotes
+    fetchSharedNotes,
+    sharedNotes
   } = useContext(NotesContext);
   
   const { user, logout, toggleTheme } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
+  const [hasUnreadSharedNotes, setHasUnreadSharedNotes] = useState(false);
 
   const categories = [
     { id: 'all', name: 'All Notes', icon: 'fa-solid fa-inbox' },
@@ -25,6 +26,12 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote }) => {
     { id: 'personal', name: 'Personal', icon: 'fa-solid fa-user' },
     { id: 'ideas', name: 'Ideas', icon: 'fa-solid fa-lightbulb' }
   ];
+
+  useEffect(() => {
+    // Check for unread shared notes
+    const unreadNotes = sharedNotes.some(note => !note.read);
+    setHasUnreadSharedNotes(unreadNotes);
+  }, [sharedNotes]);
 
   const getAvatarUrl = () => {
     if (!user?.avatar) return '';
@@ -148,6 +155,7 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote }) => {
             >
               <i className="fa-solid fa-share-nodes" aria-hidden="true"></i>
               <span>Shared with me</span>
+              {hasUnreadSharedNotes && <span className="notification-dot"></span>}
             </div>
           </div>
         </div>

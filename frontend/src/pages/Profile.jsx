@@ -11,16 +11,13 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const handleBackToHome = () => {
-    navigate('/');
+    navigate('/home');
   };
 
-  // Function to handle avatar URL (modified to not use process.env)
   const getAvatarUrl = () => {
-    if (!user?.avatar) {
-      return '';
-    }
+    if (!user?.avatar) return '';
     if (user.avatar.startsWith('http')) return user.avatar;
-      return `${API_URL}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
+    return `${API_URL}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
   };
 
   return (
