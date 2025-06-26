@@ -7,7 +7,7 @@ import '../css/Home.css';
 import '../css/Sidebar.css';
 import '../css/NoteCard.css';
 import '../css/NoteEditor.css';
-import './styles.css'; 
+import '../styles.css'; 
 
 const Home = () => {
   const { 
