@@ -28,10 +28,10 @@ function App() {
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/home" element={
-                    <PrivateRoute>
+                  <Route path="/dashboard" element={
+                    // <PrivateRoute>
                       <Home />
-                    </PrivateRoute>
+                    // </PrivateRoute>
                   } />
                   <Route path="/profile" element={
                     <PrivateRoute allowedRoles={['user', 'admin']}>
