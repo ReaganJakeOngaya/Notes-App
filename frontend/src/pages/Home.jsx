@@ -115,7 +115,7 @@ const Home = () => {
         padding: '20px', 
         color: 'red',
         backgroundColor: '#fee',
-        border: '1px solid red',
+        borderleft: '1px solid black',
         borderRadius: '4px',
         margin: '20px'
       }}>
