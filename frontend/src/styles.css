@@ -54,17 +54,25 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .app {
   display: flex;
   min-height: 100vh;
+  width: 100%;
   overflow: hidden;
 }
 
@@ -73,6 +81,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
   position: relative;
   background: var(--bg-secondary);
 }
@@ -81,6 +90,7 @@ body {
   display: flex;
   flex: 1;
   position: relative;
+  width: 100%;
 }
 
 .dashboard-main {
@@ -89,10 +99,12 @@ body {
   margin-left: var(--sidebar-width);
   transition: margin-left 0.3s ease;
   min-height: calc(100vh - var(--header-height));
+  width: calc(100% - var(--sidebar-width));
 }
 
 .dashboard-main.collapsed {
   margin-left: 0;
+  width: 100%;
 }
 
 /* Header Styles */
@@ -107,6 +119,7 @@ body {
   z-index: 90;
   position: sticky;
   top: 0;
+  width: 100%;
 }
 
 .mobile-header h1 {
@@ -124,6 +137,7 @@ body {
   border-radius: 12px;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow);
+  width: 100%;
 }
 
 /* Interactive Elements */
@@ -184,6 +198,7 @@ select:focus-visible,
   .dashboard-main {
     padding: 1rem;
     margin-left: 0;
+    width: 100%;
   }
 
   .dashboard-header {
