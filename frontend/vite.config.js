@@ -7,18 +7,17 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: 'https://notes-app-20no.onrender.com' || 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        ws: true,
-        rewrite: path => path.replace(/^\/api/, '')
+        ws: true
       },
       '/auth': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: 'https://notes-app-20no.onrender.com' || 'http://localhost:5000',
         changeOrigin: true,
-        secure: false,
-        rewrite: path => path.replace(/^\/auth/, '')
+        secure: false
       }
     }
   }
 });
+
