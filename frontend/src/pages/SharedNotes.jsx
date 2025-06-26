@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NotesContext } from '../context/NotesContext';
-import NoteCard from './NoteCard';
+import NoteCard from '../components/NoteCard';
 import { formatDate } from '../utils/dateUtils';
 import '../css/SharedNotes.css';
 
