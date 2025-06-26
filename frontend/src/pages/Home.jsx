@@ -10,6 +10,22 @@ import '../css/NoteEditor.css';
 import '../styles.css'; 
 
 const Home = () => {
+  // Add console logs to debug
+  console.log('Home component rendering...');
+  
+  const notesContext = useContext(NotesContext);
+  console.log('NotesContext:', notesContext);
+  
+  // Check if context is available
+  if (!notesContext) {
+    console.error('NotesContext is not available');
+    return (
+      <div style={{ padding: '20px', color: 'red' }}>
+        Error: NotesContext not found. Make sure Home is wrapped with NotesProvider.
+      </div>
+    );
+  }
+
   const { 
     notes, 
     sharedNotes, 
@@ -18,8 +34,15 @@ const Home = () => {
     currentSort, 
     setCurrentView, 
     setCurrentSort,
-    toggleFavorite
-  } = useContext(NotesContext);
+    toggleFavorite,
+    isLoading,
+    error
+  } = notesContext;
+  
+  console.log('Notes:', notes);
+  console.log('Current filter:', currentFilter);
+  console.log('Is loading:', isLoading);
+  console.log('Error:', error);
   
   const [editingNote, setEditingNote] = useState(null);
   const [expandedNoteId, setExpandedNoteId] = useState(null);
@@ -27,6 +50,7 @@ const Home = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
 
   useEffect(() => {
+    console.log('Setting up resize listener...');
     const handleResize = () => {
       const isMobileView = window.innerWidth < 768;
       setIsMobile(isMobileView);
@@ -38,11 +62,13 @@ const Home = () => {
   }, []);
 
   const handleEditNote = (note) => {
+    console.log('Editing note:', note);
     setEditingNote(note);
     if (isMobile) setIsSidebarOpen(false);
   };
 
   const handleNewNote = () => {
+    console.log('Creating new note...');
     setEditingNote({
       title: '',
       content: '',
@@ -53,16 +79,52 @@ const Home = () => {
   };
 
   const handleCloseEditor = () => {
+    console.log('Closing editor...');
     setEditingNote(null);
   };
 
   const handleExpandNote = (noteId) => {
+    console.log('Expanding note:', noteId);
     setExpandedNoteId(noteId === expandedNoteId ? null : noteId);
   };
 
   const toggleSidebar = () => {
+    console.log('Toggling sidebar...');
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Loading...
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div style={{ 
+        padding: '20px', 
+        color: 'red',
+        backgroundColor: '#fee',
+        border: '1px solid red',
+        borderRadius: '4px',
+        margin: '20px'
+      }}>
+        Error: {error}
+      </div>
+    );
+  }
+
+  console.log('Rendering main component...');
 
   return (
     <div className="dashboard-container">
@@ -102,7 +164,9 @@ const Home = () => {
                    currentFilter === 'favorites' ? 'Favorites' : 
                    `${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)} Notes`}
                 </h1>
-                <span className="notes-count">{notes.length} {notes.length === 1 ? 'note' : 'notes'}</span>
+                <span className="notes-count">
+                  {notes ? notes.length : 0} {notes && notes.length === 1 ? 'note' : 'notes'}
+                </span>
               </div>
               <div className="header-actions">
                 <div className="view-toggle">
@@ -149,7 +213,7 @@ const Home = () => {
                 onCancel={handleCloseEditor}
                 inline={true}
               />
-            ) : notes.length === 0 ? (
+            ) : !notes || notes.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">
                   <i className="fa-solid fa-note-sticky"></i>
