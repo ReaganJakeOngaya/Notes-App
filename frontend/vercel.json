@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://notes-app-20no.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
