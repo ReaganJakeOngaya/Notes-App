@@ -72,7 +72,7 @@ def create_app(config_class=Config):
     # CORS Configuration
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["https://notes-app-r4yj.vercel.app"],
+            "origins": ["https://notes-app-mnvs.vercel.app"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type", "Set-Cookie"],
@@ -80,7 +80,7 @@ def create_app(config_class=Config):
             "max_age": 86400
         },
         r"/auth/*": {
-            "origins": ["https://notes-app-r4yj.vercel.app"],
+            "origins": ["https://notes-app-mnvs.vercel.app"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "expose_headers": ["Content-Type", "Set-Cookie"],
@@ -155,30 +155,4 @@ def create_app(config_class=Config):
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
-
-
-    # # CORS Configuration
-    # CORS(app, resources={
-    #     r"/api/*": {
-    #         "origins": ["https://notes-app-r4yj.vercel.app"],
-    #         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    #         "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
-    #         "expose_headers": ["Content-Type", "Set-Cookie"],
-    #         "supports_credentials": True,
-    #         "max_age": 86400
-    #     },
-    #     r"/auth/*": {
-    #         "origins": ["https://notes-app-r4yj.vercel.app"],
-    #         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    #         "allow_headers": ["Content-Type", "Authorization"],
-    #         "expose_headers": ["Content-Type", "Set-Cookie"],
-    #         "supports_credentials": True,
-    #         "max_age": 86400
-    #     },
-    #     r"/static/*": {
-    #         "origins": ["*"],
-    #         "methods": ["GET"]
-    #     }
-    # })
-
    
