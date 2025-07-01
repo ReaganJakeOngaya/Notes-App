@@ -19,6 +19,10 @@ const Profile = () => {
     return `${API_URL}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
   };
 
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center">Loading user data...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-4xl mx-auto p-4">
@@ -40,14 +44,14 @@ const Profile = () => {
               <div className="relative group">
                 <img 
                   src={getAvatarUrl() || '/default-avatar.png'} 
-                  alt={`${user?.username} avatar`}
+                  alt={`${user.username}'s avatar`}
                   className="w-32 h-32 rounded-full object-cover border-4 border-indigo-100/80 dark:border-indigo-900/80 backdrop-blur-sm"
                   onError={(e) => {
                     e.target.src = '/default-avatar.png';
                     e.target.onerror = null;
                   }}
                 />
-                {user?.avatar && (
+                {user.avatar && (
                   <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                     <i className="fas fa-camera text-white text-xl"></i>
                   </div>
@@ -57,17 +61,17 @@ const Profile = () => {
               <div className="flex-1">
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
                   <i className="fas fa-user mr-2 text-indigo-600 dark:text-indigo-400"></i>
-                  {user?.username}
+                  {user.username}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-2">
                   <i className="fas fa-envelope mr-2 text-indigo-600 dark:text-indigo-400"></i>
-                  {user?.email}
+                  {user.email}
                 </p>
                 <p className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-white/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 mb-4 backdrop-blur-sm">
-                  <i className={`fab fa-${user?.provider === 'google' ? 'google' : 'apple'} mr-2`}></i>
-                  Signed in with {user?.provider || 'email'}
+                  <i className={`fab fa-${user.provider === 'google' ? 'google' : 'apple'} mr-2`}></i>
+                  Signed in with {user.provider || 'email'}
                 </p>
-                {user?.bio ? (
+                {user.bio ? (
                   <div className="prose dark:prose-invert max-w-none bg-white/50 dark:bg-gray-700/50 p-4 rounded-lg backdrop-blur-sm">
                     <div dangerouslySetInnerHTML={{ __html: user.bio }} />
                   </div>
@@ -105,21 +109,21 @@ const Profile = () => {
               <i className="fas fa-sticky-note text-indigo-600 dark:text-indigo-300 text-2xl"></i>
             </div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Notes Created</h3>
-            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{user?.noteCount || 0}</p>
+            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{user.noteCount || 0}</p>
           </div>
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm p-6 text-center border border-white/30 dark:border-gray-700/50">
             <div className="w-16 h-16 bg-pink-100/80 dark:bg-pink-900/80 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
               <i className="fas fa-heart text-pink-600 dark:text-pink-300 text-2xl"></i>
             </div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Favorites</h3>
-            <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">{user?.favoriteCount || 0}</p>
+            <p className="text-3xl font-bold text-pink-600 dark:text-pink-400">{user.favoriteCount || 0}</p>
           </div>
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm p-6 text-center border border-white/30 dark:border-gray-700/50">
             <div className="w-16 h-16 bg-green-100/80 dark:bg-green-900/80 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
               <i className="fas fa-share-alt text-green-600 dark:text-green-300 text-2xl"></i>
             </div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Notes Shared</h3>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{user?.sharedCount || 0}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{user.sharedCount || 0}</p>
           </div>
         </div>
       </div>

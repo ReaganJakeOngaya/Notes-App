@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NotesContext } from '../context/NotesContext';
-import NoteCard from '../components/NoteCard';
 import { formatDate } from '../utils/dateUtils';
 
 const SharedNotes = () => {
@@ -15,6 +14,10 @@ const SharedNotes = () => {
   const handleNoteClick = (noteId) => {
     markNoteAsRead(noteId);
   };
+
+  if (!sharedNotes) {
+    return <div className="min-h-screen flex items-center justify-center">Loading shared notes...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
