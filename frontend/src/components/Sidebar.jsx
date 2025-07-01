@@ -82,19 +82,19 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
     toggleTheme();
   }, [toggleTheme]);
 
-  const sidebarWidth = isCollapsed ? 'w-16' : 'w-72';
+  const sidebarWidth = isCollapsed ? 'w-16' : 'w-64';
   const sidebarTransform = isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0';
 
   return (
     <>
       <aside 
-        className={`fixed md:relative h-full ${sidebarWidth} bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 shadow-2xl transform transition-all duration-500 ease-out z-30 ${sidebarTransform}`}
+        className={`fixed md:relative h-full ${sidebarWidth} bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-white/20 dark:border-gray-700/50 shadow-xl transform transition-all duration-300 ease-out z-30 ${sidebarTransform}`}
         role="navigation"
         aria-label="Main navigation"
       >
         <div className="flex flex-col h-full">
           {/* Header Section */}
-          <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-900">
+          <div className="p-4 border-b border-white/20 dark:border-gray-700/50 bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-gray-800/50 dark:to-gray-900/50">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <div className="relative">
@@ -131,7 +131,7 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
           
           {/* Search Section */}
           {!isCollapsed && (
-            <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="p-4 border-b border-white/20 dark:border-gray-700/50">
               <div className="relative group">
                 <i className="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors duration-300"></i>
                 <input 
@@ -139,7 +139,7 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
                   placeholder="Search notes..." 
                   value={searchValue}
                   onChange={handleSearch}
-                  className="w-full pl-12 pr-10 py-3 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white dark:focus:bg-gray-700 transition-all duration-300 border border-transparent focus:border-indigo-200"
+                  className="w-full pl-12 pr-10 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all duration-300 border border-white/30 dark:border-gray-700/50"
                   aria-label="Search notes"
                 />
                 {searchValue && (
@@ -167,8 +167,8 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
                   key={category.id}
                   className={`group relative flex items-center px-3 py-3 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
                     currentFilter === category.id 
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/25' 
-                      : 'hover:bg-gray-100/70 dark:hover:bg-gray-800/70 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
+                      ? 'bg-gradient-to-r from-indigo-500/90 to-purple-500/90 text-white shadow-lg shadow-indigo-500/25' 
+                      : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
                   }`}
                   onClick={() => handleFilter(category.id)}
                   onKeyDown={(e) => handleKeyDown(e, () => handleFilter(category.id))}
@@ -193,7 +193,7 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
                         <span className={`ml-2 px-2 py-1 text-xs rounded-full font-semibold ${
                           currentFilter === category.id 
                             ? 'bg-white/20 text-white' 
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                            : 'bg-white/50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300'
                         }`}>
                           {category.count}
                         </span>
@@ -211,7 +211,7 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
               
               {/* Shared Notes */}
               <div 
-                className="group relative flex items-center px-3 py-3 rounded-xl cursor-pointer hover:bg-gray-100/70 dark:hover:bg-gray-800/70 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 transform hover:scale-[1.02]"
+                className="group relative flex items-center px-3 py-3 rounded-xl cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 transform hover:scale-[1.02]"
                 onClick={handleSharedNotesClick}
                 onKeyDown={(e) => handleKeyDown(e, handleSharedNotesClick)}
                 role="button"
@@ -230,10 +230,10 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
           </div>
 
           {/* User Section */}
-          <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+          <div className="p-4 border-t border-white/20 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-gray-900/50">
             {/* Profile */}
             <div 
-              className={`flex items-center mb-4 p-3 rounded-xl hover:bg-white/70 dark:hover:bg-gray-800/70 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] group ${isCollapsed ? 'justify-center' : ''}`}
+              className={`flex items-center mb-4 p-3 rounded-xl hover:bg-white/50 dark:hover:bg-gray-800/50 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] group ${isCollapsed ? 'justify-center' : ''}`}
               onClick={handleProfileClick}
               onKeyDown={(e) => handleKeyDown(e, handleProfileClick)}
               role="button"
@@ -244,13 +244,13 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
                 <img 
                   src={getAvatarUrl() || '/default-avatar.png'}
                   alt={`${user?.username || 'User'} avatar`}
-                  className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-200 dark:ring-indigo-700 group-hover:ring-indigo-400 transition-all duration-300"
+                  className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-200/70 dark:ring-indigo-700/70 group-hover:ring-indigo-400/70 transition-all duration-300"
                   onError={(e) => {
                     e.target.src = '/default-avatar.png';
                     e.target.onerror = null;
                   }}
                 />
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white/80 dark:border-gray-800/80"></div>
               </div>
               
               {!isCollapsed && (
@@ -263,7 +263,7 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
 
             {/* Theme Toggle */}
             <div 
-              className={`flex items-center px-3 py-3 rounded-xl hover:bg-white/70 dark:hover:bg-gray-800/70 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 transform hover:scale-[1.02] mb-2 group ${isCollapsed ? 'justify-center' : ''}`}
+              className={`flex items-center px-3 py-3 rounded-xl hover:bg-white/50 dark:hover:bg-gray-800/50 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 transform hover:scale-[1.02] mb-2 group ${isCollapsed ? 'justify-center' : ''}`}
               onClick={handleThemeToggle}
               onKeyDown={(e) => handleKeyDown(e, handleThemeToggle)}
               role="button"
@@ -276,7 +276,7 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote, isCollapsed, onToggleCo
 
             {/* Logout */}
             <button 
-              className={`w-full flex items-center px-3 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-all duration-300 transform hover:scale-[1.02] group ${isCollapsed ? 'justify-center' : ''}`}
+              className={`w-full flex items-center px-3 py-3 rounded-xl hover:bg-red-50/50 dark:hover:bg-red-900/20 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-all duration-300 transform hover:scale-[1.02] group ${isCollapsed ? 'justify-center' : ''}`}
               onClick={handleLogout}
               onKeyDown={(e) => handleKeyDown(e, handleLogout)}
               aria-label="Logout"
