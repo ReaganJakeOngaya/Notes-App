@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+import tailwindcss from '@tailwindcss/postcss';
+import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
   define: {
@@ -7,16 +9,26 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://notes-app-20no.onrender.com' || 'http://localhost:5000',
+        target: process.env.VITE_API_BASE_URL || 'https://notes-app-20no.onrender.com',
         changeOrigin: true,
         secure: false,
+        rewrite: path => path.replace(/^\/api/, ''),
         ws: true
       },
       '/auth': {
-        target: 'https://notes-app-20no.onrender.com' || 'http://localhost:5000',
+        target: process.env.VITE_API_BASE_URL || 'https://notes-app-20no.onrender.com',
         changeOrigin: true,
-        secure: false
+        secure: false,
+        rewrite: path => path.replace(/^\/auth/, '')
       }
+    }
+  },
+  css: {
+    postcss: {
+      plugins: [
+        tailwindcss,
+        autoprefixer
+      ]
     }
   }
 });

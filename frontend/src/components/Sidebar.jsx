@@ -3,7 +3,6 @@ import { NotesContext } from '../context/NotesContext';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../services/api';
-import '../css/Sidebar.css';
 
 const Sidebar = ({ isMobile, isOpen, onClose, onNewNote }) => {
   const { 
@@ -20,15 +19,14 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote }) => {
   const [hasUnreadSharedNotes, setHasUnreadSharedNotes] = useState(false);
 
   const categories = [
-    { id: 'all', name: 'All Notes', icon: 'fa-solid fa-inbox' },
-    { id: 'favorites', name: 'Favorites', icon: 'fa-solid fa-star' },
-    { id: 'work', name: 'Work', icon: 'fa-solid fa-briefcase' },
-    { id: 'personal', name: 'Personal', icon: 'fa-solid fa-user' },
-    { id: 'ideas', name: 'Ideas', icon: 'fa-solid fa-lightbulb' }
+    { id: 'all', name: 'All Notes', icon: 'fas fa-inbox' },
+    { id: 'favorites', name: 'Favorites', icon: 'fas fa-star' },
+    { id: 'work', name: 'Work', icon: 'fas fa-briefcase' },
+    { id: 'personal', name: 'Personal', icon: 'fas fa-user' },
+    { id: 'ideas', name: 'Ideas', icon: 'fas fa-lightbulb' }
   ];
 
   useEffect(() => {
-    // Check for unread shared notes
     const unreadNotes = sharedNotes.some(note => !note.read);
     setHasUnreadSharedNotes(unreadNotes);
   }, [sharedNotes]);
@@ -85,129 +83,138 @@ const Sidebar = ({ isMobile, isOpen, onClose, onNewNote }) => {
   return (
     <>
       <aside 
-        className={`sidebar ${isMobile ? 'mobile' : ''} ${isOpen ? 'open' : ''}`}
+        className={`fixed md:relative h-full w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out z-20
+          ${isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}`}
         role="navigation"
         aria-label="Main navigation"
       >
-        <div className="sidebar-header">
-          <div className="logo">
-            <i className="fa-solid fa-note-sticky" aria-hidden="true"></i>
-            <span>NoteFlow</span>
-          </div>
-          <button 
-            className="new-note-btn" 
-            onClick={onNewNote}
-            onKeyDown={(e) => handleKeyDown(e, onNewNote)}
-            aria-label="Create new note"
-          >
-            <i className="fa-solid fa-plus" aria-hidden="true"></i>
-            <span>New Note</span>
-          </button>
-        </div>
-        
-        <div className="search-section">
-          <div className="search-box">
-            <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input 
-              type="text" 
-              placeholder="Search notes..." 
-              value={searchValue}
-              onChange={handleSearch}
-              aria-label="Search notes"
-            />
-            {searchValue && (
-              <button 
-                className="clear-search-btn"
-                onClick={handleClearSearch}
-                aria-label="Clear search"
-              >
-                <i className="fa-solid fa-times" aria-hidden="true"></i>
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="categories">
-          <h3>Categories</h3>
-          <div className="category-list" role="list">
-            {categories.map(category => (
-              <div 
-                key={category.id}
-                className={`category-item ${currentFilter === category.id ? 'active' : ''}`}
-                onClick={() => handleFilter(category.id)}
-                onKeyDown={(e) => handleKeyDown(e, () => handleFilter(category.id))}
-                role="listitem button"
-                tabIndex={0}
-                aria-label={`Filter by ${category.name}`}
-                aria-current={currentFilter === category.id ? 'page' : undefined}
-              >
-                <i className={category.icon} aria-hidden="true"></i>
-                <span>{category.name}</span>
-              </div>
-            ))}
-            <div 
-              className="category-item"
-              onClick={handleSharedNotesClick}
-              onKeyDown={(e) => handleKeyDown(e, handleSharedNotesClick)}
-              role="listitem button"
-              tabIndex={0}
-              aria-label="View shared notes"
+        <div className="flex flex-col h-full">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center mb-4">
+              <i className="fas fa-sticky-note text-indigo-600 dark:text-indigo-400 text-xl mr-2"></i>
+              <span className="text-xl font-semibold text-gray-800 dark:text-white">NoteFlow</span>
+            </div>
+            <button 
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center justify-center"
+              onClick={onNewNote}
+              onKeyDown={(e) => handleKeyDown(e, onNewNote)}
+              aria-label="Create new note"
             >
-              <i className="fa-solid fa-share-nodes" aria-hidden="true"></i>
-              <span>Shared with me</span>
-              {hasUnreadSharedNotes && <span className="notification-dot"></span>}
+              <i className="fas fa-plus mr-2"></i>
+              New Note
+            </button>
+          </div>
+          
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="relative">
+              <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              <input 
+                type="text" 
+                placeholder="Search notes..." 
+                value={searchValue}
+                onChange={handleSearch}
+                className="w-full pl-10 pr-8 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                aria-label="Search notes"
+              />
+              {searchValue && (
+                <button 
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  onClick={handleClearSearch}
+                  aria-label="Clear search"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              )}
             </div>
           </div>
-        </div>
 
-        <div className="sidebar-footer">
-          <div 
-            className="user-profile" 
-            onClick={handleProfileClick}
-            onKeyDown={(e) => handleKeyDown(e, handleProfileClick)}
-            role="button"
-            tabIndex={0}
-            aria-label="Go to profile"
-          >
-            <img 
-              src={getAvatarUrl() || '/default-avatar.png'}
-              alt={`${user?.username || 'User'} avatar`}
-              onError={(e) => {
-                e.target.src = '/default-avatar.png';
-                e.target.onerror = null;
-              }}
-            />
-            <div className="user-info">
-              <span className="username">{user?.username || 'User'}</span>
-              <span className="email">{user?.email}</span>
+          <div className="flex-1 overflow-y-auto p-4">
+            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Categories</h3>
+            <div className="space-y-1">
+              {categories.map(category => (
+                <div 
+                  key={category.id}
+                  className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-colors ${currentFilter === category.id ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+                  onClick={() => handleFilter(category.id)}
+                  onKeyDown={(e) => handleKeyDown(e, () => handleFilter(category.id))}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Filter by ${category.name}`}
+                  aria-current={currentFilter === category.id ? 'page' : undefined}
+                >
+                  <i className={`${category.icon} mr-3`} aria-hidden="true"></i>
+                  <span>{category.name}</span>
+                </div>
+              ))}
+              <div 
+                className="flex items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 relative"
+                onClick={handleSharedNotesClick}
+                onKeyDown={(e) => handleKeyDown(e, handleSharedNotesClick)}
+                role="button"
+                tabIndex={0}
+                aria-label="View shared notes"
+              >
+                <i className="fas fa-share-nodes mr-3" aria-hidden="true"></i>
+                <span>Shared with me</span>
+                {hasUnreadSharedNotes && (
+                  <span className="absolute right-3 top-3 w-2 h-2 bg-red-500 rounded-full"></span>
+                )}
+              </div>
             </div>
           </div>
-          <div 
-            className="theme-toggle"
-            onClick={handleThemeToggle}
-            onKeyDown={(e) => handleKeyDown(e, handleThemeToggle)}
-            role="button"
-            tabIndex={0}
-            aria-label="Toggle theme"
-          >
-            <i className="fa-solid fa-moon" id="theme-icon" aria-hidden="true"></i>
-            <span>Toggle Theme</span>
+
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div 
+              className="flex items-center mb-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+              onClick={handleProfileClick}
+              onKeyDown={(e) => handleKeyDown(e, handleProfileClick)}
+              role="button"
+              tabIndex={0}
+              aria-label="Go to profile"
+            >
+              <img 
+                src={getAvatarUrl() || '/default-avatar.png'}
+                alt={`${user?.username || 'User'} avatar`}
+                className="w-10 h-10 rounded-full object-cover"
+                onError={(e) => {
+                  e.target.src = '/default-avatar.png';
+                  e.target.onerror = null;
+                }}
+              />
+              <div className="ml-3">
+                <div className="text-sm font-medium text-gray-800 dark:text-white">{user?.username || 'User'}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</div>
+              </div>
+            </div>
+
+            <div 
+              className="flex items-center px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300"
+              onClick={handleThemeToggle}
+              onKeyDown={(e) => handleKeyDown(e, handleThemeToggle)}
+              role="button"
+              tabIndex={0}
+              aria-label="Toggle theme"
+            >
+              <i className="fas fa-moon mr-3" aria-hidden="true"></i>
+              <span>Toggle Theme</span>
+            </div>
+
+            <button 
+              className="w-full flex items-center px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              onClick={handleLogout}
+              onKeyDown={(e) => handleKeyDown(e, handleLogout)}
+              aria-label="Logout"
+            >
+              <i className="fas fa-right-from-bracket mr-3" aria-hidden="true"></i>
+              <span>Logout</span>
+            </button>
           </div>
-          <button 
-            className="logout-btn" 
-            onClick={handleLogout}
-            onKeyDown={(e) => handleKeyDown(e, handleLogout)}
-            aria-label="Logout"
-          >
-            <i className="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-            <span>Logout</span>
-          </button>
         </div>
       </aside>
 
       {isMobile && isOpen && (
         <div 
-          className="sidebar-overlay" 
+          className="fixed inset-0 bg-black bg-opacity-50 z-10"
           onClick={onClose}
           role="button"
           tabIndex={0}
