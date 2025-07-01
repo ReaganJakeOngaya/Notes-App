@@ -1,7 +1,20 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NotesContext } from '../context/NotesContext';
+import NoteCard from '../components/NoteCard';
 import { formatDate } from '../utils/dateUtils';
+import '../css/SharedNotes.css';
+
+const getCategoryIcon = (category) => {
+  const icons = {
+    personal: 'fas fa-user',
+    work: 'fas fa-briefcase',
+    ideas: 'fas fa-lightbulb',
+    favorites: 'fas fa-star',
+    default: 'fas fa-file-alt'
+  };
+  return <i className={icons[category] || icons.default}></i>;
+};
 
 const SharedNotes = () => {
   const { sharedNotes, markNoteAsRead } = useContext(NotesContext);
@@ -15,107 +28,90 @@ const SharedNotes = () => {
     markNoteAsRead(noteId);
   };
 
-  if (!sharedNotes) {
-    return <div className="min-h-screen flex items-center justify-center">Loading shared notes...</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="bg-gradient-to-r from-indigo-600/90 to-purple-600/90 text-white pb-16 pt-8 px-4 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center mb-6">
-            <button 
-              className="flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg mr-4 backdrop-blur-sm transition-all"
-              onClick={handleBackToHome}
-            >
-              <i className="fas fa-arrow-left mr-2"></i>
-              <span>Back to Notes</span>
-            </button>
-            
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold flex items-center">
-                <i className="fas fa-share-alt mr-3"></i>
-                Shared with Me
-              </h1>
-              <div className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full mt-2 backdrop-blur-sm">
-                <i className="fas fa-file-alt mr-2"></i>
-                <span>{sharedNotes.length} {sharedNotes.length === 1 ? 'note' : 'notes'}</span>
-              </div>
+    <div className="shared-notes-container">
+      <div className="main-header">
+        <div className="header-content">
+          <button className="back-btn" onClick={handleBackToHome}>
+            <i className="fas fa-arrow-left"></i>
+            <span>Back to Notes</span>
+          </button>
+          
+          <div className="header-info">
+            <h1 className="page-title">
+              <i className="fas fa-share-alt header-icon"></i>
+              Shared with Me
+            </h1>
+            <div className="notes-count-badge">
+              <i className="fas fa-file-alt"></i>
+              <span>{sharedNotes.length} {sharedNotes.length === 1 ? 'note' : 'notes'}</span>
             </div>
           </div>
         </div>
+        
+        <div className="header-gradient"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 -mt-8">
+      <div className="content-area">
         {sharedNotes.length === 0 ? (
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm p-8 text-center border border-white/30 dark:border-gray-700/50">
-            <div className="w-32 h-32 bg-indigo-100/80 dark:bg-indigo-900/80 rounded-full flex items-center justify-center mx-auto mb-6 relative backdrop-blur-sm">
-              <i className="fas fa-share-alt text-indigo-600 dark:text-indigo-300 text-4xl"></i>
-              <div className="absolute inset-0 rounded-full border-4 border-indigo-200/50 dark:border-indigo-700/50 animate-ping opacity-20"></div>
+          <div className="empty-state">
+            <div className="empty-illustration">
+              <div className="empty-icon-container">
+                <i className="fas fa-share-alt empty-icon"></i>
+                <div className="icon-pulse"></div>
+              </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">No shared notes yet</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Notes that others share with you will appear here.<br/>
-              Start collaborating to see shared content!
-            </p>
-            <button 
-              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg flex items-center mx-auto shadow-lg hover:shadow-xl transition-all backdrop-blur-sm"
-              onClick={handleBackToHome}
-            >
-              <i className="fas fa-home mr-2"></i>
-              Go to My Notes
-            </button>
+            <div className="empty-content">
+              <h3 className="empty-title">No shared notes yet</h3>
+              <p className="empty-description">
+                Notes that others share with you will appear here.<br/>
+                Start collaborating to see shared content!
+              </p>
+              <div className="empty-actions">
+                <button className="btn-primary" onClick={handleBackToHome}>
+                  <i className="fas fa-home"></i>
+                  Go to My Notes
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-8">
+          <div className="notes-grid">
             {sharedNotes.map(note => (
               <div 
                 key={note.id} 
-                className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm overflow-hidden relative transition-transform hover:scale-[1.02] cursor-pointer border border-white/30 dark:border-gray-700/50 ${
-                  !note.read ? 'ring-2 ring-indigo-500/50' : ''
-                }`}
+                className={`shared-note-card ${!note.read ? 'unread' : ''}`}
                 onClick={() => handleNoteClick(note.id)}
               >
-                {!note.read && (
-                  <div className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full backdrop-blur-sm"></div>
-                )}
+                {!note.read && <div className="unread-indicator"></div>}
                 
-                <div className="absolute top-2 left-2 w-8 h-8 bg-indigo-100/80 dark:bg-indigo-900/80 rounded-full flex items-center justify-center backdrop-blur-sm">
-                  <i className="fas fa-share-alt text-indigo-600 dark:text-indigo-300"></i>
+                <div className="shared-indicator">
+                  <i className="fas fa-share-alt"></i>
                 </div>
                 
-                <div className="p-4 pt-12">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">{note.title}</h3>
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <i className="fas fa-user-circle mr-1"></i>
-                      <span>Shared by: {note.author || 'Unknown'}</span>
-                    </div>
+                <div className="note-header">
+                  <h3 className="note-title">{note.title}</h3>
+                  <div className="note-author">
+                    <i className="fas fa-user-circle"></i>
+                    <span>Shared by: {note.author || 'Unknown'}</span>
                   </div>
-                  
-                  <div 
-                    className="prose dark:prose-invert max-h-32 overflow-hidden mb-4 bg-white/50 dark:bg-gray-700/50 p-2 rounded-lg backdrop-blur-sm"
-                    dangerouslySetInnerHTML={{ __html: note.content }} 
-                  />
-                  
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/30 dark:border-gray-700/50">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
-                      note.category === 'work' ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/80 dark:text-blue-200' :
-                      note.category === 'personal' ? 'bg-green-100/80 text-green-800 dark:bg-green-900/80 dark:text-green-200' :
-                      'bg-yellow-100/80 text-yellow-800 dark:bg-yellow-900/80 dark:text-yellow-200'
-                    }`}>
-                      <i className={`fas ${
-                        note.category === 'work' ? 'fa-briefcase' :
-                        note.category === 'personal' ? 'fa-user' : 'fa-lightbulb'
-                      } mr-1`}></i>
-                      {note.category}
+                </div>
+                
+                <div className="note-content" dangerouslySetInnerHTML={{ __html: note.content }} />
+                
+                <div className="note-footer">
+                  <div className="note-meta">
+                    <span className={`category-badge category-${note.category}`}>
+                      {getCategoryIcon(note.category)} {note.category}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      <i className="fas fa-calendar-alt mr-1"></i>
-                      {formatDate(note.shared_at || note.modified_at)}
+                    <span className="note-date">
+                      <i className="fas fa-calendar-alt"></i>
+                      Shared : {formatDate(note.shared_at || note.modified_at)}
                     </span>
                   </div>
                 </div>
+                
+                <div className="card-hover-overlay"></div>
               </div>
             ))}
           </div>
