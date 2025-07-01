@@ -7,7 +7,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import NotFound from './pages/NotFound';
 import Unauthorized from './pages/Unauthorized';
-import './style.css';
+import './styles.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // Lazy load main pages for better performance

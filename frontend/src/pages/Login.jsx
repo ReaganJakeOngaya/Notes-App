@@ -79,7 +79,7 @@ const Login = () => {
               {isLogin ? 'Welcome Back' : 'Create Account'}
             </h2>
             <p className="text-white/80">
-              {isLogin ? 'Sign in to continue to NotesFlow' : 'Join NoteFlow to start organizing your notes'}
+              {isLogin ? 'Sign in to continue to NotesHub' : 'Join NotesHub to start organizing your notes'}
             </p>
           </motion.div>
 
