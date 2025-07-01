@@ -17,12 +17,12 @@ const SharedNotes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white pb-16 pt-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="bg-gradient-to-r from-indigo-600/90 to-purple-600/90 text-white pb-16 pt-8 px-4 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center mb-6">
             <button 
-              className="flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg mr-4"
+              className="flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg mr-4 backdrop-blur-sm transition-all"
               onClick={handleBackToHome}
             >
               <i className="fas fa-arrow-left mr-2"></i>
@@ -34,7 +34,7 @@ const SharedNotes = () => {
                 <i className="fas fa-share-alt mr-3"></i>
                 Shared with Me
               </h1>
-              <div className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full mt-2">
+              <div className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full mt-2 backdrop-blur-sm">
                 <i className="fas fa-file-alt mr-2"></i>
                 <span>{sharedNotes.length} {sharedNotes.length === 1 ? 'note' : 'notes'}</span>
               </div>
@@ -45,10 +45,10 @@ const SharedNotes = () => {
 
       <div className="max-w-6xl mx-auto px-4 -mt-8">
         {sharedNotes.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-            <div className="w-32 h-32 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm p-8 text-center border border-white/30 dark:border-gray-700/50">
+            <div className="w-32 h-32 bg-indigo-100/80 dark:bg-indigo-900/80 rounded-full flex items-center justify-center mx-auto mb-6 relative backdrop-blur-sm">
               <i className="fas fa-share-alt text-indigo-600 dark:text-indigo-300 text-4xl"></i>
-              <div className="absolute inset-0 rounded-full border-4 border-indigo-200 dark:border-indigo-700 animate-ping opacity-20"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-indigo-200/50 dark:border-indigo-700/50 animate-ping opacity-20"></div>
             </div>
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">No shared notes yet</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -56,7 +56,7 @@ const SharedNotes = () => {
               Start collaborating to see shared content!
             </p>
             <button 
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center mx-auto"
+              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg flex items-center mx-auto shadow-lg hover:shadow-xl transition-all backdrop-blur-sm"
               onClick={handleBackToHome}
             >
               <i className="fas fa-home mr-2"></i>
@@ -68,14 +68,16 @@ const SharedNotes = () => {
             {sharedNotes.map(note => (
               <div 
                 key={note.id} 
-                className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden relative transition-transform hover:scale-[1.02] cursor-pointer ${!note.read ? 'ring-2 ring-indigo-500' : ''}`}
+                className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm overflow-hidden relative transition-transform hover:scale-[1.02] cursor-pointer border border-white/30 dark:border-gray-700/50 ${
+                  !note.read ? 'ring-2 ring-indigo-500/50' : ''
+                }`}
                 onClick={() => handleNoteClick(note.id)}
               >
                 {!note.read && (
-                  <div className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full backdrop-blur-sm"></div>
                 )}
                 
-                <div className="absolute top-2 left-2 w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
+                <div className="absolute top-2 left-2 w-8 h-8 bg-indigo-100/80 dark:bg-indigo-900/80 rounded-full flex items-center justify-center backdrop-blur-sm">
                   <i className="fas fa-share-alt text-indigo-600 dark:text-indigo-300"></i>
                 </div>
                 
@@ -89,15 +91,15 @@ const SharedNotes = () => {
                   </div>
                   
                   <div 
-                    className="prose dark:prose-invert max-h-32 overflow-hidden mb-4"
+                    className="prose dark:prose-invert max-h-32 overflow-hidden mb-4 bg-white/50 dark:bg-gray-700/50 p-2 rounded-lg backdrop-blur-sm"
                     dangerouslySetInnerHTML={{ __html: note.content }} 
                   />
                   
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      note.category === 'work' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                      note.category === 'personal' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/30 dark:border-gray-700/50">
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
+                      note.category === 'work' ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/80 dark:text-blue-200' :
+                      note.category === 'personal' ? 'bg-green-100/80 text-green-800 dark:bg-green-900/80 dark:text-green-200' :
+                      'bg-yellow-100/80 text-yellow-800 dark:bg-yellow-900/80 dark:text-yellow-200'
                     }`}>
                       <i className={`fas ${
                         note.category === 'work' ? 'fa-briefcase' :
