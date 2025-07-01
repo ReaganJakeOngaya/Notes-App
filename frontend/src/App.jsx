@@ -24,7 +24,7 @@ function App() {
         <NotesProvider>
           <div className="app">
             <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner fullPage />}>
+              {/* <Suspense fallback={<LoadingSpinner fullPage />}> */}
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<Login />} />
@@ -46,7 +46,7 @@ function App() {
                   <Route path="/unauthorized" element={<Unauthorized />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </Suspense>
+              {/* </Suspense> */}
             </ErrorBoundary>
           </div>
         </NotesProvider>
