@@ -24,14 +24,7 @@ def handle_options():
 @users_bp.route('/profile', methods=['GET'])
 @login_required
 def get_profile():
-    return jsonify({
-        'id': current_user.id,
-        'username': current_user.username,
-        'email': current_user.email,
-        'avatar': current_user.avatar,
-        'bio': current_user.bio,
-        'provider': current_user.provider
-    }), 200
+    return jsonify(current_user.to_dict(include_stats=True)), 200
 
 # In users.py, update the avatar saving logic
 @users_bp.route('/profile', methods=['PUT'])
@@ -59,14 +52,7 @@ def update_profile():
                 current_user.avatar = f"/static/uploads/{filename}"
 
         db.session.commit()
-        return jsonify({
-            'id': current_user.id,
-            'username': current_user.username,
-            'email': current_user.email,
-            'avatar': current_user.avatar,  # Return the relative path
-            'bio': current_user.bio,
-            'provider': current_user.provider
-        }), 200
+        return jsonify(current_user.to_dict(include_stats=True)), 200
 
     except Exception as e:
         db.session.rollback()

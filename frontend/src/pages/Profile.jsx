@@ -1,14 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useNotes } from '../context/NotesContext';
 import UserProfile from '../components/UserProfile';
 import { API_URL } from '../services/api';
 import '../css/Profile.css';
 
 const Profile = () => {
   const { user, logout } = useAuth();
+  const { notes } = useNotes();
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [theme, setTheme] = useState('light');
+  const [stats, setStats] = useState({
+    totalNotes: 0,
+    favoriteNotes: 0,
+    categoryCounts: {},
+    recentActivity: []
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (notes && notes.length > 0) {
+      const favoriteCount = notes.filter(note => note.favorite).length;
+      const categoryCount = notes.reduce((acc, note) => {
+        acc[note.category] = (acc[note.category] || 0) + 1;
+        return acc;
+      }, {});
+      
+      setStats({
+        totalNotes: notes.length,
+        favoriteNotes: favoriteCount,
+        categoryCounts: categoryCount,
+        recentActivity: notes.slice(0, 5).map(note => ({
+          id: note.id,
+          title: note.title,
+          modified: note.modified_at
+        }))
+      });
+    }
+  }, [notes]);
 
   const handleBackToHome = () => {
     navigate('/home');

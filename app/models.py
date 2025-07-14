@@ -62,9 +62,23 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    # User statistics methods
+    def get_notes_count(self):
+        return self.notes.count()
+    
+    def get_favorites_count(self):
+        return self.notes.filter(Note.favorite == True).count()
+    
+    def get_shared_notes_count(self):
+        return self.shared_notes.count()
+    
+    def get_notes_by_category(self):
+        from sqlalchemy import func
+        return db.session.query(Note.category, func.count(Note.id)).filter_by(user_id=self.id).group_by(Note.category).all()
+    
     # Convert user to JSON/dict
-    def to_dict(self):
-        return {
+    def to_dict(self, include_stats=False):
+        user_dict = {
             'id': self.id,
             'username': self.username,
             'email': self.email,
@@ -72,6 +86,16 @@ class User(db.Model, UserMixin):
             'bio': self.bio,
             'provider': self.provider,
         }
+        
+        if include_stats:
+            user_dict.update({
+                'noteCount': self.get_notes_count(),
+                'favoriteCount': self.get_favorites_count(),
+                'sharedCount': self.get_shared_notes_count(),
+                'categoryStats': dict(self.get_notes_by_category())
+            })
+        
+        return user_dict
 
 
 # ==========================
@@ -101,3 +125,54 @@ class SharedNote(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     permission = db.Column(db.String(10), default='view')  # 'view' or 'edit'
     shared_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# ==========================
+# Note Revision Model
+# ==========================
+class NoteRevision(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    note_id = db.Column(db.Integer, db.ForeignKey('note.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=True)
+    revision_number = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship to note
+    note = db.relationship('Note', backref='revisions', lazy=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'noteId': self.note_id,
+            'title': self.title,
+            'content': self.content,
+            'revisionNumber': self.revision_number,
+            'createdAt': self.created_at.isoformat()
+        }
+
+
+# ==========================
+# Note Template Model
+# ==========================
+class NoteTemplate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    template_content = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(50), default='personal')
+    is_premium = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'templateContent': self.template_content,
+            'category': self.category,
+            'isPremium': self.is_premium,
+            'createdAt': self.created_at.isoformat(),
+            'updatedAt': self.updated_at.isoformat()
+        }

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import '../styles.css'; // Ensure you have the correct path to your styles
+import '../styles.css';
+import '../css/LandingPage.css';
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, -50]);
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     document.body.classList.add('bg-gradient-to-br', 'from-indigo-900', 'to-purple-900');

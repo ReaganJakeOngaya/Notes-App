@@ -12,6 +12,7 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle, isExpanded, onExpand }) => {
   const [isSharing, setIsSharing] = useState(false);
   const [shareError, setShareError] = useState(null);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [showRevisions, setShowRevisions] = useState(false);
 
   if (!note) {
     return <div className="note-card error">Error: Note data missing</div>;
@@ -74,6 +75,9 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle, isExpanded, onExpand }) => {
               <i className="fa-solid fa-compress"></i>
             </button>
           )}
+          <button className="action-btn" onClick={() => setShowRevisions(!showRevisions)} title="Revisions">
+            <i className="fa-solid fa-history"></i>
+          </button>
         </div>
       </div>
       
@@ -82,10 +86,22 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle, isExpanded, onExpand }) => {
         dangerouslySetInnerHTML={{ __html: note.content }} 
       />
       
+      {showRevisions && note.revisions.length > 0 && (
+        <div className="note-revisions">
+          <h4>Revisions</h4>
+          <ul>
+            {note.revisions.map(revision => (
+              <li key={revision.id}>
+                <strong>Rev {revision.revisionNumber}</strong>: {formatDate(revision.createdAt)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
       <div className="note-footer">
         <div className="note-meta">
-          <span className={`category-badge category-${note.category || 'personal'}`}>
-            {getCategoryIcon(note.category || 'personal')} {note.category || 'personal'}
+          <span className={`category-badge category-${note.category || 'personal'}`}>            {getCategoryIcon(note.category || 'personal')} {note.category || 'personal'}
           </span>
           <span className="note-date">{formatDate(note.modified_at)}</span>
         </div>
@@ -157,9 +173,7 @@ const NoteCard = ({ note, onEdit, onFavoriteToggle, isExpanded, onExpand }) => {
                 disabled={isSharing || !shareEmail.trim()}
               >
                 {isSharing ? (
-                  <>
-                    <i className="fa-solid fa-spinner fa-spin"></i> Sharing...
-                  </>
+                  <><i className="fa-solid fa-spinner fa-spin"></i> Sharing...</>
                 ) : (
                   'Share Note'
                 )}

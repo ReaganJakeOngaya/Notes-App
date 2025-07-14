@@ -1,17 +1,12 @@
 /* Landing Page - Modern 2025 Design */
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/Inter-VariableFont_slnt,wght.ttf') format('truetype');
-  font-weight: 300 800;
-  font-style: normal;
-  font-display: swap;
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 .landing-page {
   overflow-x: hidden;
   background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 25%, #2d1b69 50%, #6d5dfc 100%);
   min-height: 100vh;
   position: relative;
+  font-family: 'Poppins', sans-serif;
 }
 
 .landing-container {

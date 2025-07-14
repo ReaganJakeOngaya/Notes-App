@@ -1,11 +1,4 @@
-/* Modern 2025 Design System */
-/* 
-@import "tailwindcss";
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
+/* Root Variables */
 :root {
   --primary-color: #6d5dfc;
   --primary-hover: #5b4bdf;
@@ -35,6 +28,9 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --notification-dot: #ef4444;
+
+  --font-sans: 'Poppins', sans-serif;
+  --font-mono: 'Fira Code', monospace;
 }
 
 [data-theme="dark"] {
@@ -55,8 +51,6 @@
   --notification-dot: #f87171;
 }
 
-
-
 * {
   margin: 0;
   padding: 0;
@@ -68,21 +62,55 @@ html, body {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
   line-height: 1.5;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
-.app {
+.dashboard-container {
   display: flex;
   min-height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.dashboard-layout {
+  display: flex;
+  flex: 1;
   width: 100%;
   overflow: hidden;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
   background: var(--bg-secondary);
-  position: relative;
+  transition: flex 0.3s ease;
+}
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-toggle {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: var(--primary-color);
+  transition: color 0.3s;
+}
+
+.sidebar-toggle:hover {
+  color: var(--primary-hover);
 }

@@ -145,10 +145,12 @@ def create_app(config_class=Config):
     from app.routes.auth import auth_bp
     from app.routes.notes import notes_bp
     from app.routes.users import users_bp
+    from app.routes.note_templates import note_template_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(notes_bp, url_prefix='/api/notes')
     app.register_blueprint(users_bp, url_prefix='/api/users')
+    app.register_blueprint(note_template_bp, url_prefix='/api/templates')
 
     return app
 

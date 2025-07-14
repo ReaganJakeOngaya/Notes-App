@@ -1,5 +1,5 @@
 from flask import jsonify 
-from app.models import Note, SharedNote, User
+from app.models import Note, SharedNote, User, NoteRevision
 from app import db
 import json
 from datetime import datetime
@@ -95,10 +95,25 @@ class NoteService:
             if not note:
                 return jsonify({'error': 'Note not found'}), 404
             
+            # Store original content for revision tracking
+            original_title = note.title
+            original_content = note.content
+            
+            # Check if content has actually changed
+            content_changed = False
+            
             if 'title' in data:
-                note.title = str(data['title']).strip()[:100]
+                new_title = str(data['title']).strip()[:100]
+                if new_title != note.title:
+                    note.title = new_title
+                    content_changed = True
+            
             if 'content' in data:
-                note.content = str(data['content'])[:10000]
+                new_content = str(data['content'])[:10000]
+                if new_content != note.content:
+                    note.content = new_content
+                    content_changed = True
+            
             if 'category' in data and data['category'] in ['personal', 'work', 'ideas']:
                 note.category = data['category']
             if 'tags' in data:
@@ -106,6 +121,10 @@ class NoteService:
                 note.tags = json.dumps([str(tag).strip()[:20] for tag in tags][:5])
             if 'favorite' in data:
                 note.favorite = bool(data['favorite'])
+            
+            # Create revision if content changed
+            if content_changed:
+                self._create_revision(note, original_title, original_content)
             
             note.modified_at = datetime.utcnow()
             db.session.commit()
@@ -189,6 +208,26 @@ class NoteService:
             logger.error(f"Error getting shared notes: {str(e)}", exc_info=True)
             return jsonify({'error': 'Failed to fetch shared notes'}), 500
     
+    def _create_revision(self, note, original_title, original_content):
+        try:
+            # Revision number is current count of revisions for this note +1
+            revision_number = note.revisions.count() + 1
+            
+            revision = NoteRevision(
+                note_id=note.id,
+                title=original_title,
+                content=original_content,
+                revision_number=revision_number
+            )
+            
+            db.session.add(revision)
+            db.session.commit()
+            logger.info(f"Created revision {revision_number} for note {note.id}")
+        
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error creating note revision: {str(e)}", exc_info=True)
+
     def _note_to_dict(self, note):
         try:
             return {
@@ -201,7 +240,8 @@ class NoteService:
                 'created_at': note.created_at.isoformat(),
                 'modified_at': note.modified_at.isoformat(),
                 'author': note.author.username if note.author else None,
-                'shared': hasattr(note, 'permission')  # Indicates if this is a shared note
+                'shared': hasattr(note, 'permission'),  # Indicates if this is a shared note
+                'revisions': [rev.to_dict() for rev in note.revisions] if hasattr(note,"revisions") else []
             }
         except Exception as e:
             logger.error(f"Error converting note to dict: {str(e)}", exc_info=True)
@@ -215,5 +255,6 @@ class NoteService:
                 'created_at': note.created_at.isoformat(),
                 'modified_at': note.modified_at.isoformat(),
                 'author': None,
-                'shared': False
-            } 
+                'shared': False,
+                'revisions':[]
+            }
