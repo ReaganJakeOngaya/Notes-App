@@ -1,4 +1,9 @@
 /* Root Variables */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 :root {
   --primary-color: #6d5dfc;
   --primary-hover: #5b4bdf;
