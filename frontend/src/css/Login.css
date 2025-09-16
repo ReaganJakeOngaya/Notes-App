@@ -12,23 +12,7 @@
   overflow: hidden;
 }
 
-.login-container {
-  width: 100%;
-  max-width: 500px;
-  padding: 2rem;
-  z-index: 1;
-}
-
-.login-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 2.5rem;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  width: 100%;
-}
+/* Removed duplicate .login-container and .login-card base styles to avoid conflicts. */
 
 .login-header {
   text-align: center;
@@ -62,37 +46,7 @@
   padding: 0.8rem 1rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.btn-primary {
-  width: 100%;
+/* Removed duplicate .form-group, label, input, and placeholder base styles to avoid conflicts. */
   background: white;
   color: #667eea;
   margin-top: 0.5rem;
@@ -124,46 +78,7 @@
   background: rgba(255, 255, 255, 0.1);
   padding: 0.8rem 1rem;
   border-radius: 8px;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-.auth-footer {
-  margin-top: 2rem;
-  text-align: center;
-  width: 100%;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  margin: 1.5rem 0;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.divider::before, .divider::after {
-  content: "";
-  flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.divider span {
-  padding: 0 1rem;
-}
-
-.social-auth {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.btn-google, .btn-apple {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+/* Removed duplicate .btn, .btn-primary, and .btn-text base styles to avoid conflicts. */
 
 .btn-google:hover, .btn-apple:hover {
   background: rgba(255, 255, 255, 0.2);
@@ -204,15 +119,7 @@
   top: -50px;
   left: -50px;
   animation: float 15s infinite ease-in-out;
-}
-
-.login-blob-2 {
-  width: 400px;
-  height: 400px;
-  background: linear-gradient(180deg, rgba(246, 211, 101, 0.6) 0%, rgba(253, 160, 133, 0.6) 100%);
-  bottom: -100px;
-  right: -100px;
-  animation: float 18s infinite ease-in-out reverse;
+/* Removed duplicate .error-message base style to avoid conflicts. */
 }
 
 @keyframes float {
@@ -228,22 +135,7 @@
 .login-container {
   position: relative;
   z-index: 10;
-}
-
-.login-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 3rem;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  width: 100%;
-  position: relative;
-  overflow: hidden;
+/* Removed duplicate .divider base styles to avoid conflicts. */
 }
 
 .login-card::before {
@@ -260,27 +152,7 @@
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: -1;
-}
-
-.login-card:hover::before {
-  opacity: 1;
-}
-
-.login-header h2 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 0.75rem;
-  text-align: center;
-  letter-spacing: -0.02em;
-}
-
-.login-header p {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 1.1rem;
-  margin: 0;
-  text-align: center;
-  font-weight: 400;
+/* Removed duplicate .social-auth, .btn-google, .btn-apple base styles to avoid conflicts. */
 }
 
 /* Enhanced Form Styling */
@@ -302,15 +174,7 @@
   width: 100%;
   padding: 1rem 1.25rem;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
-  font-size: 1rem;
-  font-weight: 400;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
+/* Removed duplicate .spinner base style to avoid conflicts. */
 
 .form-group input:focus {
   outline: none;
