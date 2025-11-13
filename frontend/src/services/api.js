@@ -24,7 +24,7 @@ const handleResponse = async (response) => {
   return data;
 };
 
-// Core fetch with retry and credentials
+// In api.js, update fetchWithRetry function:
 const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
   const config = {
     method: options.method || 'GET',
@@ -44,10 +44,16 @@ const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
 
   try {
     const res = await fetch(`${API_URL}${url}`, config);
+    
+    // Handle CORS errors specifically
+    if (res.status === 0) {
+      throw new Error('CORS error: Network failure or CORS blocked');
+    }
+    
     if (res.status === 401) throw new Error('Unauthorized');
     return await handleResponse(res);
   } catch (err) {
-    if (retries > 0 && err.message.includes('fetch')) {
+    if (retries > 0 && (err.message.includes('fetch') || err.message.includes('CORS'))) {
       console.warn(`Retrying request to ${url} (${retries} left)...`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return fetchWithRetry(url, options, retries - 1, delay * 2);

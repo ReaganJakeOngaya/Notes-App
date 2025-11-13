@@ -1,4 +1,5 @@
 from datetime import timedelta
+from urllib import response
 from flask import Flask, send_from_directory, request, make_response, jsonify, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -72,7 +73,7 @@ def create_app(config_class=Config):
     # CORS Configuration
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["https://notes-app-mnvs.vercel.app"],
+            "origins": ["https://notes-app-seven-ecru.vercel.app", "https://notes-app-mnvs.vercel.app"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type", "Set-Cookie"],
@@ -80,7 +81,7 @@ def create_app(config_class=Config):
             "max_age": 86400
         },
         r"/auth/*": {
-            "origins": ["https://notes-app-mnvs.vercel.app"],
+            "origins": ["https://notes-app-seven-ecru.vercel.app", "https://notes-app-mnvs.vercel.app"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "expose_headers": ["Content-Type", "Set-Cookie"],
@@ -93,6 +94,17 @@ def create_app(config_class=Config):
             "supports_credentials": False
         }
     })
+    # Add explicit OPTIONS handler for preflight requests
+    @app.after_request
+    def after_request(response):
+       response.headers.add('Access-Control-Allow-Credentials', 'true')
+    
+       # Handle preflight requests
+       if request.method == 'OPTIONS':
+           response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+           response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+    
+       return response
 
     @app.before_request
     def before_request_hooks():
@@ -116,7 +128,7 @@ def create_app(config_class=Config):
         # Let Flask-CORS handle CORS headers
         csp = (
             "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com;"
-            "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-mnvs.vercel.app;"
+            "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-seven-ecru.vercel.app https://notes-app-mnvs.vercel.app;"
             "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
             "style-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data: blob:;"
