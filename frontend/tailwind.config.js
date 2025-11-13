@@ -12,9 +12,7 @@ export default {
             DEFAULT: '#6d5dfc',
             hover: '#5b4bdf',
           },
-          // Add your other custom colors here
         },
-        // You can extend other theme values as needed
       },
     },
     plugins: [],
