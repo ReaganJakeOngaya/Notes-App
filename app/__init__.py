@@ -71,9 +71,20 @@ def create_app(config_class=Config):
             return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
 
     # CORS Configuration
+    allowed_origins = [
+        "https://notes-app-seven-ecru.vercel.app",
+        "https://notes-app-mnvs.vercel.app",
+        "http://localhost:5173",  # Vite dev server
+        "http://localhost:3000",  # Alternative dev port
+        "http://localhost:5000",  # Flask dev server
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5000"
+    ]
+    
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["https://notes-app-seven-ecru.vercel.app", "https://notes-app-mnvs.vercel.app"],
+            "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
             "expose_headers": ["Content-Type", "Set-Cookie"],
@@ -81,7 +92,7 @@ def create_app(config_class=Config):
             "max_age": 86400
         },
         r"/auth/*": {
-            "origins": ["https://notes-app-seven-ecru.vercel.app", "https://notes-app-mnvs.vercel.app"],
+            "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "expose_headers": ["Content-Type", "Set-Cookie"],
@@ -94,7 +105,7 @@ def create_app(config_class=Config):
             "supports_credentials": False
         }
     })
-    # Add explicit OPTIONS handler for preflight requests
+    # Add explicit OPTIONS handler for preflight requests and security headers
     @app.after_request
     def after_request(response):
        response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -104,6 +115,34 @@ def create_app(config_class=Config):
            response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
            response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     
+       # Add CSP headers - very permissive for development
+       import os
+       is_production = os.getenv('FLASK_ENV') == 'production'
+       
+       if is_production:
+           # Strict CSP for production
+           csp = (
+               "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com;"
+               "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-seven-ecru.vercel.app https://notes-app-mnvs.vercel.app https://accounts.google.com https://appleid.apple.com;"
+               "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
+               "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;"
+               "img-src 'self' data: https: blob:;"
+               "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;"
+               "frame-src 'self' https://accounts.google.com https://appleid.apple.com"
+           )
+       else:
+           # Permissive CSP for development
+           csp = (
+               "default-src 'self' * http://* https://*;"
+               "connect-src 'self' * http://* https://* ws: wss:;"
+               "style-src 'self' 'unsafe-inline' * http://* https://*;"
+               "font-src 'self' * http://* https://*;"
+               "img-src 'self' * data: blob: http://* https://*;"
+               "script-src 'self' 'unsafe-inline' * http://* https://*;"
+               "frame-src 'self' * http://* https://*"
+           )
+       
+       response.headers['Content-Security-Policy'] = csp
        return response
 
     @app.before_request
@@ -122,23 +161,6 @@ def create_app(config_class=Config):
             return {"status": "connected", "time": str(result[0])}, 200
         except Exception as e:
             return {"error": str(e)}, 500
-
-    @app.after_request
-    def add_security_headers(response):
-        # Let Flask-CORS handle CORS headers
-        csp = (
-            "default-src 'self' https://notes-app-20no.onrender.com https://cdnjs.cloudflare.com;"
-            "connect-src 'self' https://notes-app-20no.onrender.com https://notes-app-seven-ecru.vercel.app https://notes-app-mnvs.vercel.app;"
-            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
-            "style-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data: blob:;"
-            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;"
-            "img-src 'self' data: https: blob:;"
-            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;"
-            "frame-src 'self' https://accounts.google.com https://appleid.apple.com"
-        )
-        response.headers['Content-Security-Policy'] = csp
-        return response
 
     @app.errorhandler(500)
     def handle_server_error(e):

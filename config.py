@@ -6,8 +6,13 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
     
-    # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://localhost/noteshub.db')
+    # Database configuration - use PostgreSQL from .env, fallback to SQLite for local dev
+    db_url = os.getenv('DATABASE_URL')
+    if db_url and 'postgresql' in db_url:
+        SQLALCHEMY_DATABASE_URI = db_url
+    else:
+        # Use SQLite for local development
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/noteflow.db'
 
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,

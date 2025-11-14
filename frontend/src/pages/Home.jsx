@@ -1,26 +1,24 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import NoteCard from '../components/NoteCard';
 import NoteEditor from '../components/NoteEditor';
 import { NotesContext } from '../context/NotesContext';
-import '../css/Home.css';
-import '../css/Sidebar.css';
-import '../css/NoteCard.css';
-import '../css/NoteEditor.css';
-import '../styles.css'; 
+import { Search, Grid, List, Plus, Sparkles, Menu } from 'lucide-react';
 
 const Home = () => {
-  // Add console logs to debug
-  console.log('Home component rendering...');
-  
   const notesContext = useContext(NotesContext);
-  console.log('NotesContext:', notesContext);
   
-  // Check if context is available
   if (!notesContext) {
-    console.error('NotesContext is not available');
     return (
-      <div style={{ padding: '20px', color: 'red' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        background: '#000000',
+        color: '#FFFFFF'
+      }}>
         Error: NotesContext not found. Make sure Home is wrapped with NotesProvider.
       </div>
     );
@@ -28,7 +26,6 @@ const Home = () => {
 
   const { 
     notes, 
-    sharedNotes, 
     currentView, 
     currentFilter, 
     currentSort, 
@@ -36,21 +33,19 @@ const Home = () => {
     setCurrentSort,
     toggleFavorite,
     isLoading,
-    error
+    error,
+    searchQuery,
+    setSearchQuery
   } = notesContext;
-  
-  console.log('Notes:', notes);
-  console.log('Current filter:', currentFilter);
-  console.log('Is loading:', isLoading);
-  console.log('Error:', error);
   
   const [editingNote, setEditingNote] = useState(null);
   const [expandedNoteId, setExpandedNoteId] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
+  const [searchValue, setSearchValue] = useState(searchQuery || '');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    console.log('Setting up resize listener...');
     const handleResize = () => {
       const isMobileView = window.innerWidth < 768;
       setIsMobile(isMobileView);
@@ -61,14 +56,16 @@ const Home = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    setSearchValue(searchQuery || '');
+  }, [searchQuery]);
+
   const handleEditNote = (note) => {
-    console.log('Editing note:', note);
     setEditingNote(note);
     if (isMobile) setIsSidebarOpen(false);
   };
 
   const handleNewNote = () => {
-    console.log('Creating new note...');
     setEditingNote({
       title: '',
       content: '',
@@ -79,18 +76,97 @@ const Home = () => {
   };
 
   const handleCloseEditor = () => {
-    console.log('Closing editor...');
     setEditingNote(null);
   };
 
   const handleExpandNote = (noteId) => {
-    console.log('Expanding note:', noteId);
     setExpandedNoteId(noteId === expandedNoteId ? null : noteId);
   };
 
   const toggleSidebar = () => {
-    console.log('Toggling sidebar...');
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    setSearchQuery(value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchValue('');
+    setSearchQuery('');
+  };
+
+  const handleSidebarCollapseChange = (isCollapsed) => {
+    setIsSidebarCollapsed(isCollapsed);
+  };
+
+  // Filter and sort notes based on current settings
+  const getFilteredAndSortedNotes = () => {
+    if (!notes) return [];
+
+    let filteredNotes = [...notes];
+
+    // Apply search filter
+    if (searchQuery) {
+      filteredNotes = filteredNotes.filter(note =>
+        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+      );
+    }
+
+    // Apply category filter
+    if (currentFilter !== 'all') {
+      if (currentFilter === 'favorites') {
+        filteredNotes = filteredNotes.filter(note => note.isFavorite);
+      } else {
+        filteredNotes = filteredNotes.filter(note => note.category === currentFilter);
+      }
+    }
+
+    // Apply sorting
+    switch (currentSort) {
+      case 'newest':
+        filteredNotes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case 'oldest':
+        filteredNotes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      case 'alphabetical':
+        filteredNotes.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'modified':
+        filteredNotes.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+        break;
+      default:
+        break;
+    }
+
+    return filteredNotes;
+  };
+
+  const filteredNotes = getFilteredAndSortedNotes();
+
+  // Calculate main content margin based on sidebar state
+  const getMainContentStyle = () => {
+    if (isMobile) {
+      return {
+        flex: 1,
+        padding: '1rem',
+        width: '100%'
+      };
+    } else {
+      const sidebarWidth = isSidebarCollapsed ? 80 : 280;
+      return {
+        flex: 1,
+        padding: '2rem',
+        marginLeft: `${sidebarWidth}px`,
+        width: `calc(100% - ${sidebarWidth}px)`,
+        transition: 'all 0.3s ease'
+      };
+    }
   };
 
   // Show loading state
@@ -101,9 +177,18 @@ const Home = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         height: '100vh',
+        background: '#000000',
+        color: '#FFFFFF',
         fontSize: '18px'
       }}>
-        Loading...
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          style={{ marginRight: '1rem' }}
+        >
+          <Sparkles size={24} color="#0066FF" />
+        </motion.div>
+        Loading your notes...
       </div>
     );
   }
@@ -113,138 +198,604 @@ const Home = () => {
     return (
       <div style={{ 
         padding: '20px', 
-        color: 'red',
-        backgroundColor: '#fee',
-        borderleft: '1px solid black',
-        borderRadius: '4px',
-        margin: '20px'
+        color: '#ff6b6b',
+        background: 'rgba(255, 107, 107, 0.1)',
+        borderLeft: '4px solid #ff6b6b',
+        borderRadius: '8px',
+        margin: '20px',
+        backdropFilter: 'blur(10px)'
       }}>
         Error: {error}
       </div>
     );
   }
 
-  console.log('Rendering main component...');
-
   return (
-    <div className="dashboard-container">
+    <div style={{
+      minHeight: '100vh',
+      background: '#000000',
+      color: '#FFFFFF',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Animated Background Elements */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: `linear-gradient(rgba(0, 102, 255, 0.05) 1px, transparent 1px),
+                         linear-gradient(90deg, rgba(0, 102, 255, 0.05) 1px, transparent 1px)`,
+        backgroundSize: '50px 50px',
+        opacity: 0.3
+      }} />
+
+      <motion.div
+        animate={{
+          x: [0, 100, 0],
+          y: [0, -50, 0],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        style={{
+          position: 'absolute',
+          top: '20%',
+          right: '5%',
+          width: '300px',
+          height: '300px',
+          background: 'radial-gradient(circle, rgba(0, 102, 255, 0.15) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+          pointerEvents: 'none'
+        }}
+      />
+
+      {/* Mobile Header */}
       {isMobile && (
-        <div className="mobile-header">
-          <button 
-            className="sidebar-toggle"
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            padding: '1rem',
+            background: 'rgba(0, 0, 0, 0.9)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={toggleSidebar}
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
             aria-label="Toggle sidebar"
-            aria-expanded={isSidebarOpen}
           >
-            <i className="fa-solid fa-bars"></i>
-          </button>
-          <h1>
+            <Menu size={20} />
+          </motion.button>
+
+          <motion.h1
+            style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              background: 'linear-gradient(90deg, #FFFFFF, #0066FF)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              margin: 0
+            }}
+          >
             {currentFilter === 'all' ? 'All Notes' : 
              currentFilter === 'favorites' ? 'Favorites' : 
-             `${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)} Notes`}
-          </h1>
-          <div style={{ width: '40px' }} aria-hidden="true"></div>
-        </div>
+             `${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)}`}
+          </motion.h1>
+
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleNewNote}
+            style={{
+              background: '#0066FF',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            aria-label="Create new note"
+          >
+            <Plus size={20} />
+          </motion.button>
+        </motion.div>
       )}
 
-      <div className="dashboard-layout">
+      <div style={{
+        display: 'flex',
+        minHeight: '100vh',
+        paddingTop: isMobile ? '70px' : '0'
+      }}>
         <Sidebar 
           isMobile={isMobile}
           isOpen={isSidebarOpen}
           onClose={toggleSidebar}
           onNewNote={handleNewNote}
+          onCollapseChange={handleSidebarCollapseChange}
         />
         
-        <main className={`dashboard-main ${!isSidebarOpen && isMobile ? 'collapsed' : ''}`}>
+        <motion.main 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          style={getMainContentStyle()}
+        >
+          {/* Desktop Header */}
           {!isMobile && (
-            <div className="dashboard-header">
-              <div className="header-left">
-                <h1>
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '2rem',
+                flexWrap: 'wrap',
+                gap: '1rem'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                <motion.h1
+                  style={{
+                    fontSize: '2.5rem',
+                    fontWeight: 900,
+                    background: 'linear-gradient(90deg, #FFFFFF, #0066FF)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    margin: 0
+                  }}
+                >
                   {currentFilter === 'all' ? 'All Notes' : 
                    currentFilter === 'favorites' ? 'Favorites' : 
                    `${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)} Notes`}
-                </h1>
-                <span className="notes-count">
-                  {notes ? notes.length : 0} {notes && notes.length === 1 ? 'note' : 'notes'}
-                </span>
+                </motion.h1>
+                
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  style={{
+                    padding: '0.25rem 1rem',
+                    background: 'rgba(0, 102, 255, 0.1)',
+                    border: '1px solid rgba(0, 102, 255, 0.3)',
+                    borderRadius: '50px',
+                    fontSize: '0.875rem',
+                    fontWeight: 500
+                  }}
+                >
+                  {filteredNotes.length} {filteredNotes.length === 1 ? 'note' : 'notes'}
+                </motion.span>
               </div>
-              <div className="header-actions">
-                <div className="view-toggle">
-                  <button 
-                    className={`view-btn ${currentView === 'grid' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('grid')}
-                    aria-label="Grid view"
-                    aria-pressed={currentView === 'grid'}
-                  >
-                    <i className="fa-solid fa-grid"></i>
-                    <span>Grid</span>
-                  </button>
-                  <button 
-                    className={`view-btn ${currentView === 'list' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('list')}
-                    aria-label="List view"
-                    aria-pressed={currentView === 'list'}
-                  >
-                    <i className="fa-solid fa-list"></i>
-                    <span>List</span>
-                  </button>
-                </div>
-                <div className="sort-dropdown">
-                  <select 
-                    value={currentSort}
-                    onChange={(e) => setCurrentSort(e.target.value)}
-                    aria-label="Sort notes by"
-                  >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="alphabetical">A-Z</option>
-                    <option value="modified">Last Modified</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
 
-          <div className="notes-container">
-            {editingNote ? (
-              <NoteEditor 
-                note={editingNote}
-                onSave={handleCloseEditor}
-                onCancel={handleCloseEditor}
-                inline={true}
-              />
-            ) : !notes || notes.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">
-                  <i className="fa-solid fa-note-sticky"></i>
-                </div>
-                <h3>No notes yet</h3>
-                <p>Create your first note to get started</p>
-                <button 
-                  className="btn btn-primary" 
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '1rem', 
+                flexWrap: 'wrap',
+                justifyContent: 'flex-end'
+              }}>
+                {/* Search Bar */}
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  style={{
+                    position: 'relative',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    padding: '0.75rem 1rem',
+                    minWidth: '300px'
+                  }}
+                >
+                  <Search 
+                    size={20} 
+                    color="rgba(255, 255, 255, 0.5)" 
+                    style={{ 
+                      position: 'absolute', 
+                      left: '12px', 
+                      top: '50%', 
+                      transform: 'translateY(-50%)' 
+                    }} 
+                  />
+                  <input 
+                    type="text"
+                    placeholder="Search notes..."
+                    value={searchValue}
+                    onChange={handleSearchChange}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#FFFFFF',
+                      paddingLeft: '2rem',
+                      width: '100%',
+                      fontSize: '0.95rem',
+                      outline: 'none'
+                    }}
+                    aria-label="Search notes"
+                  />
+                  {searchValue && (
+                    <motion.button
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      onClick={handleClearSearch}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        cursor: 'pointer',
+                        padding: '4px'
+                      }}
+                      aria-label="Clear search"
+                    >
+                      ×
+                    </motion.button>
+                  )}
+                </motion.div>
+
+                {/* View Toggle */}
+                <motion.div 
+                  style={{
+                    display: 'flex',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    padding: '0.25rem'
+                  }}
+                >
+                  {['grid', 'list'].map((view) => (
+                    <motion.button
+                      key={view}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setCurrentView(view)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: currentView === view ? '#0066FF' : 'transparent',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#FFFFFF',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 500
+                      }}
+                      aria-label={`Switch to ${view} view`}
+                    >
+                      {view === 'grid' ? <Grid size={16} /> : <List size={16} />}
+                      {view.charAt(0).toUpperCase() + view.slice(1)}
+                    </motion.button>
+                  ))}
+                </motion.div>
+
+                {/* Sort Dropdown */}
+                <motion.select 
+                  whileHover={{ scale: 1.02 }}
+                  value={currentSort}
+                  onChange={(e) => setCurrentSort(e.target.value)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    padding: '0.75rem 1rem',
+                    color: '#FFFFFF',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    minWidth: '150px'
+                  }}
+                  aria-label="Sort notes by"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="alphabetical">A-Z</option>
+                  <option value="modified">Last Modified</option>
+                </motion.select>
+
+                {/* New Note Button */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleNewNote}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: '#0066FF',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#FFFFFF',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                    boxShadow: '0 4px 20px rgba(0, 102, 255, 0.3)'
+                  }}
                   aria-label="Create new note"
                 >
-                  <i className="fa-solid fa-plus"></i>
-                  Create Note
-                </button>
+                  <Plus size={20} />
+                  New Note
+                </motion.button>
               </div>
+            </motion.div>
+          )}
+
+          {/* Mobile Search and Controls */}
+          {isMobile && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                marginBottom: '2rem'
+              }}
+            >
+              {/* Search Bar */}
+              <motion.div 
+                style={{
+                  position: 'relative',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '0.75rem 1rem'
+                }}
+              >
+                <Search 
+                  size={20} 
+                  color="rgba(255, 255, 255, 0.5)" 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '12px', 
+                    top: '50%', 
+                    transform: 'translateY(-50%)' 
+                  }} 
+                />
+                <input 
+                  type="text"
+                  placeholder="Search notes..."
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#FFFFFF',
+                    paddingLeft: '2rem',
+                    width: '100%',
+                    fontSize: '0.95rem',
+                    outline: 'none'
+                  }}
+                />
+                {searchValue && (
+                  <button
+                    onClick={handleClearSearch}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </motion.div>
+
+              {/* Mobile Controls */}
+              <div style={{
+                display: 'flex',
+                gap: '1rem',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '0.25rem',
+                  flex: 1
+                }}>
+                  {['grid', 'list'].map((view) => (
+                    <button
+                      key={view}
+                      onClick={() => setCurrentView(view)}
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: currentView === view ? '#0066FF' : 'transparent',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#FFFFFF',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 500
+                      }}
+                    >
+                      {view === 'grid' ? <Grid size={16} /> : <List size={16} />}
+                    </button>
+                  ))}
+                </div>
+
+                <select 
+                  value={currentSort}
+                  onChange={(e) => setCurrentSort(e.target.value)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    padding: '0.75rem',
+                    color: '#FFFFFF',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    minWidth: '120px'
+                  }}
+                >
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="alphabetical">A-Z</option>
+                  <option value="modified">Modified</option>
+                </select>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Notes Content */}
+          <AnimatePresence mode="wait">
+            {editingNote ? (
+              <motion.div
+                key="editor"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <NoteEditor 
+                  note={editingNote}
+                  onSave={handleCloseEditor}
+                  onCancel={handleCloseEditor}
+                  inline={true}
+                />
+              </motion.div>
+            ) : filteredNotes.length === 0 ? (
+              <motion.div 
+                key="empty"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '4rem 2rem',
+                  textAlign: 'center'
+                }}
+              >
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 10, -10, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    background: 'rgba(0, 102, 255, 0.1)',
+                    border: '2px solid rgba(0, 102, 255, 0.3)',
+                    borderRadius: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '2rem'
+                  }}
+                >
+                  <Sparkles size={32} color="#0066FF" />
+                </motion.div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem' }}>
+                  {searchValue ? 'No notes found' : 'No notes yet'}
+                </h3>
+                <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '2rem' }}>
+                  {searchValue 
+                    ? 'Try adjusting your search terms or create a new note'
+                    : 'Create your first note to get started with your organized thoughts'
+                  }
+                </p>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleNewNote}
+                  style={{
+                    padding: '1rem 2rem',
+                    background: '#0066FF',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#FFFFFF',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    boxShadow: '0 4px 20px rgba(0, 102, 255, 0.3)'
+                  }}
+                >
+                  <Plus size={20} />
+                  Create Your First Note
+                </motion.button>
+              </motion.div>
             ) : (
-              <div className={`notes-${currentView}`}>
-                {notes.map(note => (
-                  <NoteCard 
+              <motion.div 
+                key="notes"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{
+                  display: currentView === 'grid' ? 'grid' : 'flex',
+                  gridTemplateColumns: currentView === 'grid' ? 'repeat(auto-fill, minmax(300px, 1fr))' : '1fr',
+                  flexDirection: currentView === 'list' ? 'column' : 'row',
+                  gap: '1.5rem'
+                }}
+              >
+                {filteredNotes.map((note, index) => (
+                  <motion.div
                     key={note.id}
-                    note={note}
-                    onEdit={handleEditNote}
-                    onFavoriteToggle={toggleFavorite}
-                    isExpanded={expandedNoteId === note.id}
-                    onExpand={handleExpandNote}
-                  />
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <NoteCard 
+                      note={note}
+                      onEdit={handleEditNote}
+                      onFavoriteToggle={toggleFavorite}
+                      isExpanded={expandedNoteId === note.id}
+                      onExpand={handleExpandNote}
+                      view={currentView}
+                    />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
-          </div>
-        </main>
+          </AnimatePresence>
+        </motion.main>
       </div>
     </div>
   );

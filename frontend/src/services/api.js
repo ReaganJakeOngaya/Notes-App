@@ -18,7 +18,10 @@ const handleResponse = async (response) => {
 
   if (!response.ok) {
     const errorMsg = data?.message || data?.error || response.statusText;
-    throw new Error(errorMsg);
+    const error = new Error(errorMsg);
+    error.status = response.status;
+    error.response = data;
+    throw error;
   }
 
   return data;
@@ -43,7 +46,14 @@ const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
   };
 
   try {
-    const res = await fetch(`${API_URL}${url}`, config);
+    console.log(`Attempting to fetch: ${API_URL}${url}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    const res = await fetch(`${API_URL}${url}`, { ...config, signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    console.log(`Response status: ${res.status} for ${url}`);
     
     // Handle CORS errors specifically
     if (res.status === 0) {
@@ -53,7 +63,9 @@ const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
     if (res.status === 401) throw new Error('Unauthorized');
     return await handleResponse(res);
   } catch (err) {
-    if (retries > 0 && (err.message.includes('fetch') || err.message.includes('CORS'))) {
+    console.error(`Fetch error for ${url}:`, err.message);
+    
+    if (retries > 0 && (err.message.includes('fetch') || err.message.includes('CORS') || err.message.includes('Failed'))) {
       console.warn(`Retrying request to ${url} (${retries} left)...`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return fetchWithRetry(url, options, retries - 1, delay * 2);

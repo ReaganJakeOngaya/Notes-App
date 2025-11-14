@@ -31,26 +31,28 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
+      setAuthError(null);
       const userData = await loginUser(credentials);
       setUser(userData);
-      setAuthError(null);
-      navigate('/home');
       return userData;
     } catch (error) {
-      setAuthError(error.message || 'Login failed');
+      const errorMsg = error.message || 'Login failed';
+      setAuthError(errorMsg);
+      console.error('Login error:', error);
       throw error;
     }
   };
 
   const register = async (credentials) => {
     try {
+      setAuthError(null);
       const userData = await registerUser(credentials);
       setUser(userData);
-      setAuthError(null);
-      navigate('/home');
       return userData;
     } catch (error) {
-      setAuthError(error.message || 'Registration failed');
+      const errorMsg = error.message || 'Registration failed';
+      setAuthError(errorMsg);
+      console.error('Registration error:', error);
       throw error;
     }
   };

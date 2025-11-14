@@ -26,8 +26,15 @@ def logout_options():
 def register():
     data = request.get_json()
     try:
+        # Validate required fields
+        if not data.get('email') or not data.get('password') or not data.get('username'):
+            return jsonify({'error': 'Email, username, and password are required'}), 400
+        
         if User.query.filter_by(email=data['email']).first():
             return jsonify({'error': 'Email already registered'}), 400
+        
+        if User.query.filter_by(username=data['username']).first():
+            return jsonify({'error': 'Username already taken'}), 400
     
         user = User(
             username=data['username'],
@@ -52,6 +59,10 @@ def register():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+    
+    if not data.get('email') or not data.get('password'):
+        return jsonify({'error': 'Email and password are required'}), 400
+    
     user = User.query.filter_by(email=data['email']).first()
     
     if user and user.check_password(data['password']):
@@ -60,7 +71,8 @@ def login():
             'message': 'Logged in successfully',
             'user': user.to_dict(),
             'token': user.get_auth_token() 
-        })
+        }), 200
+    
     return jsonify({'error': 'Invalid email or password'}), 401
 
 @auth_bp.route('/logout', methods=['POST'])
